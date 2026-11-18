@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gemelo digital | Banco de sangre</title>
+  <style>
+    :root { font-family: system-ui, Segoe UI, sans-serif; color: #202c35; background: #f4f6f7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    header { background: #631c33; color: white; padding: 1.3rem max(1rem, calc((100vw - 1100px)/2)); }
+    header h1 { margin: .2rem 0; font-size: clamp(1.4rem, 3.4vw, 2rem); }
+    .sub { color: #ffe8ed; margin: 0; }
+    main { max-width: 1100px; margin: auto; padding: 1.2rem; }
+    .notice { background: #fff4dd; color: #62420a; border-left: 5px solid #b7791f; padding: .8rem 1rem; border-radius: .4rem; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 1fr); gap: 1.2rem; margin-top: 1.2rem; align-items: start; }
+    .panel { background: white; border: 1px solid #dbe2e5; border-radius: 1rem; padding: 1.2rem; box-shadow: 0 5px 20px #1b2b3610; }
+    h2 { margin-top: 0; color: #631c33; font-size: 1.2rem; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .65rem; }
+    .card { background: #e8f6f3; border-radius: .65rem; padding: .8rem; text-align: center; }
+    .card strong { display: block; font-size: 1.2rem; color: #075c56; }
+    .card span { display: block; margin-top: .25rem; font-size: .9rem; }
+    .card.empty { background: #f6e9ec; }
+    .card.empty strong { color: #81283b; }
+    label { font-weight: 650; display: block; margin: 1rem 0 .4rem; }
+    select, button { width: 100%; font: inherit; padding: .72rem; border-radius: .55rem; }
+    select { border: 1px solid #9daab1; background: white; }
+    button { border: 0; background: #631c33; color: white; font-weight: 700; margin-top: .75rem; cursor: pointer; }
+    button:hover { background: #802a47; }
+    button:focus-visible, select:focus-visible { outline: 3px solid #0d9488; outline-offset: 2px; }
+    .muted { color: #52616b; font-size: .92rem; }
+    .result { border: 1px solid #dce4e8; border-radius: .75rem; padding: 1rem; margin: .75rem 0; }
+    .result.primary { border: 2px solid #0d9488; background: #f3fbf9; }
+    .result h3 { margin: 0 0 .55rem; font-size: 1.06rem; }
+    .result ul { padding-left: 1.2rem; margin-bottom: 0; line-height: 1.5; }
+    .pending { margin-top: 1.2rem; }
+    footer { max-width: 1100px; padding: 1rem 1.2rem 2rem; margin: auto; color: #52616b; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 480px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="sub">Programación lógica · SWI-Prolog</p>
+    <h1>Gemelo digital del banco de sangre</h1>
+    <p class="sub">Fotografía ficticia · hora 100 del modelo · situación 1 en desarrollo</p>
+  </header>
+  <main>
+    <p class="notice"><strong>Simulación educativa.</strong> No representa el inventario Erlang en vivo, no reserva unidades y no sirve para decisiones médicas.</p>
+    <div class="layout">
+      <section class="panel" aria-labelledby="inventario-titulo">
+        <h2 id="inventario-titulo">Glóbulos rojos utilizables</h2>
+        <p class="muted">Conteos calculados por Prolog: excluyen unidades reservadas y vencidas.</p>
+        <div class="grid" id="inventario" aria-live="polite">Cargando inventario…</div>
+      </section>
+      <section class="panel" aria-labelledby="consulta-titulo">
+        <h2 id="consulta-titulo">Preguntar al gemelo</h2>
+        <label for="solicitud">Solicitud ficticia</label>
+        <select id="solicitud">
+          <option value="s1">s1 · Paciente A+ · tipo exacto agotado</option>
+          <option value="s2">s2 · Paciente O− confirmado</option>
+          <option value="s3">s3 · Fuentes de tipo contradictorias</option>
+        </select>
+        <button id="consultar" type="button">Consultar decisión y explicación</button>
+        <p class="muted">Las propuestas no cambian el estado de ninguna unidad.</p>
+        <div id="respuestas" role="status" aria-live="polite">Selecciona una solicitud para ver la deducción.</div>
+      </section>
+    </div>
+    <section class="panel pending">
+      <h2>Próximos pasos</h2>
+      <p class="muted">Reservas y urgencias · prueba positiva tardía · fallas de refrigeración · accidente. Estas situaciones aún no tienen decisiones implementadas.</p>
+    </section>
+  </main>
+  <footer>Los hechos, las reglas y las explicaciones se calculan en SWI-Prolog. Esta página solo presenta sus respuestas.</footer>
+  <script>
+    const inventario = document.getElementById('inventario');
+    const respuestas = document.getElementById('respuestas');
+    const boton = document.getElementById('consultar');
+    const solicitud = document.getElementById('solicitud');
+    async function pedir(url) {
+      const r = await fetch(url, {headers: {'Accept': 'application/json'}});
+      if (!r.ok) throw new Error('El gemelo no respondió (' + r.status + ').');
+      return r.json();
+    }
+    async function cargarInventario() {
+      try {
+        const {inventario: filas} = await pedir('/api/inventario');
+        inventario.replaceChildren();
+        for (const fila of filas) {
+          const card = document.createElement('div');
+          card.className = 'card' + (fila.disponibles === 0 ? ' empty' : '');
+          const tipo = document.createElement('strong');
+          const cantidad = document.createElement('span');
+          tipo.textContent = fila.tipo.replace('_neg', '−').replace('_pos', '+').toUpperCase();
+          cantidad.textContent = fila.disponibles + ' utilizables';
+          card.append(tipo, cantidad);
+          inventario.append(card);
+        }
+      } catch (e) { inventario.textContent = e.message; }
+    }
+    async function consultar() {
+      boton.disabled = true;
+      respuestas.textContent = 'Consultando a Prolog…';
+      try {
+        const datos = await pedir('/api/decidir?id=' + encodeURIComponent(solicitud.value));
+        respuestas.replaceChildren();
+        for (const [i, opcion] of datos.opciones.entries()) {
+          const card = document.createElement('article');
+          card.className = 'result' + (i === 0 ? ' primary' : '');
+          const titulo = document.createElement('h3');
+          const d = opcion.decision;
+          titulo.textContent = d.accion === 'propuesta'
+            ? (i === 0 ? 'Propuesta preferida' : 'Alternativa ' + (i + 1)) + ': ' + d.unidad + ' (' + d.tipo + ')'
+            : d.accion === 'no_se_sabe' ? 'No se sabe el tipo del paciente' : 'Sin existencias';
+          const lista = document.createElement('ul');
+          for (const explicacion of opcion.explicacion) {
+            const li = document.createElement('li'); li.textContent = explicacion;
+            lista.append(li);
+          }
+          card.append(titulo, lista);
+          respuestas.append(card);
+        }
+        if (datos.opciones.length === 0) respuestas.textContent = 'Esta consulta todavía no tiene respuesta implementada.';
+      } catch (e) { respuestas.textContent = e.message; }
+      finally { boton.disabled = false; }
+    }
+    boton.addEventListener('click', consultar);
+    cargarInventario();
+    consultar();
+  </script>
+</body>
+</html>
