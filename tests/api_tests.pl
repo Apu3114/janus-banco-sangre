@@ -19,7 +19,8 @@ test(pagina_e_inventario, [nondet]) :-
           sub_string(Html,_,_,_,'Gemelo digital del banco de sangre'),
           pagina(Port,'api/inventario',Json),
           sub_string(Json,_,_,_,'"inventario"'),
-          sub_string(Json,_,_,_,'"globulos"') ),
+          sub_string(Json,_,_,_,'"globulos"'),
+          sub_string(Json,_,_,_,'"hora":100') ),
         servidor:detener).
 
 test(decision_y_conflicto, [nondet]) :-

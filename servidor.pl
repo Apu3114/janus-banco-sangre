@@ -35,10 +35,12 @@ pagina_http(Request) :-
     http_reply_file(Pagina, [unsafe(true),cache(false)], Request).
 
 inventario_http(_Request) :-
+    hechos:ahora(Hora),
     findall(_{componente:"globulos",tipo:Nombre,disponibles:N},
             (reglas:existencias(globulos,Tipo,N), atom_string(Tipo,Nombre)),
             Filas),
-    reply_json_dict(_{inventario:Filas,nota:"Fotografía educativa, no datos de Erlang"}).
+    reply_json_dict(_{hora:Hora,inventario:Filas,
+                      nota:"Fotografía educativa, no datos de Erlang"}).
 
 decision_http(Request) :-
     http_parameters(Request, [id(IdTexto, [string])]),

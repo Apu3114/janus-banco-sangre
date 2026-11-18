@@ -3,249 +3,730 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gemelo digital | Banco de sangre</title>
+  <title>Janus · Gemelo digital del banco de sangre #44</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet">
   <style>
-    :root { font-family: system-ui, Segoe UI, sans-serif; color: #202c35; background: #f4f6f7; }
+    :root {
+      --maroon-950: #3d0f1e;
+      --maroon-900: #631c33;
+      --maroon-800: #521629;
+      --canvas: #f4f6f7;
+      --teal-700: #0f766e;
+      --teal-600: #0d9488;
+      --teal-100: #ccfbf1;
+      --teal-50: #f0fdfa;
+      --amber-600: #d97706;
+      --amber-500: #f59e0b;
+      --amber-100: #fef3c7;
+      --amber-50: #fffbeb;
+      --red-700: #b91c1c;
+      --red-600: #dc2626;
+      --red-100: #fee2e2;
+      --red-50: #fef2f2;
+      --ink: #1e293b;
+      --slate-700: #334155;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --surface: #ffffff;
+      --sans: "Inter", system-ui, "Segoe UI", sans-serif;
+      --serif: "Newsreader", Georgia, "Times New Roman", serif;
+      --mono: "Fira Code", Consolas, "Courier New", monospace;
+      --radius: 14px;
+      --shadow: 0 8px 30px rgba(15, 23, 42, .06);
+    }
     * { box-sizing: border-box; }
-    body { margin: 0; }
-    header { background: #631c33; color: white; padding: 1.3rem max(1rem, calc((100vw - 1100px)/2)); }
-    header h1 { margin: .2rem 0; font-size: clamp(1.4rem, 3.4vw, 2rem); }
-    .sub { color: #ffe8ed; margin: 0; }
-    main { max-width: 1100px; margin: auto; padding: 1.2rem; }
-    .notice { background: #fff4dd; color: #62420a; border-left: 5px solid #b7791f; padding: .8rem 1rem; border-radius: .4rem; }
-    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 1fr); gap: 1.2rem; margin-top: 1.2rem; align-items: start; }
-    .panel { background: white; border: 1px solid #dbe2e5; border-radius: 1rem; padding: 1.2rem; box-shadow: 0 5px 20px #1b2b3610; }
-    h2 { margin-top: 0; color: #631c33; font-size: 1.2rem; }
-    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .65rem; }
-    .card { background: #e8f6f3; border-radius: .65rem; padding: .8rem; text-align: center; }
-    .card strong { display: block; font-size: 1.2rem; color: #075c56; }
-    .card span { display: block; margin-top: .25rem; font-size: .9rem; }
-    .card.empty { background: #f6e9ec; }
-    .card.empty strong { color: #81283b; }
-    label { font-weight: 650; display: block; margin: 1rem 0 .4rem; }
-    select, button { width: 100%; font: inherit; padding: .72rem; border-radius: .55rem; }
-    select { border: 1px solid #9daab1; background: white; }
-    button { border: 0; background: #631c33; color: white; font-weight: 700; margin-top: .75rem; cursor: pointer; }
-    button:hover { background: #802a47; }
-    button:focus-visible, select:focus-visible { outline: 3px solid #0d9488; outline-offset: 2px; }
-    .muted { color: #52616b; font-size: .92rem; }
-    .result { border: 1px solid #dce4e8; border-radius: .75rem; padding: 1rem; margin: .75rem 0; }
-    .result.primary { border: 2px solid #0d9488; background: #f3fbf9; }
-    .result h3 { margin: 0 0 .55rem; font-size: 1.06rem; }
-    .result ul { padding-left: 1.2rem; margin-bottom: 0; line-height: 1.5; }
-    .reservation { border-left: 4px solid #0d9488; margin: .7rem 0; padding: .45rem .9rem; background: #f3fbf9; }
-    .reservation.uncertain { border-color: #b7791f; background: #fff7e7; }
-    .pending { margin-top: 1.2rem; }
-    footer { max-width: 1100px; padding: 1rem 1.2rem 2rem; margin: auto; color: #52616b; }
-    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
-    @media (max-width: 480px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--canvas); color: var(--ink);
+      font-family: var(--sans); font-size: 15px; line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--teal-700); }
+    :focus-visible { outline: 2px solid var(--teal-600); outline-offset: 2px; }
+    .skip {
+      position: absolute; left: -9999px; top: 0; z-index: 100;
+      background: var(--maroon-900); color: #fff; padding: .6rem 1rem;
+    }
+    .skip:focus { left: .5rem; top: .5rem; }
+
+    /* Aviso académico */
+    .banner {
+      position: sticky; top: 0; z-index: 60;
+      background: var(--amber-500); color: #0f172a;
+      border-bottom: 1px solid #b45309;
+      font-size: .78rem; font-weight: 700; letter-spacing: .01em;
+      display: flex; justify-content: space-between; gap: 1rem; align-items: center;
+      padding: .45rem clamp(1rem, 4vw, 2rem);
+    }
+    .banner .meta { display: flex; gap: 1.1rem; font-weight: 600; opacity: .9; }
+    .banner .meta span { white-space: nowrap; }
+
+    /* Cabecera */
+    .masthead {
+      background: var(--maroon-900); color: #fff;
+      padding: 1.1rem clamp(1rem, 4vw, 2.6rem) 1.25rem;
+      border-bottom: 4px solid var(--maroon-950);
+    }
+    .masthead-inner {
+      max-width: 1240px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center;
+    }
+    .brand { display: flex; align-items: center; gap: .85rem; min-width: 0; }
+    .logo {
+      flex: 0 0 auto; width: 42px; height: 42px; border-radius: 9px;
+      display: grid; place-items: center; background: #fff; color: var(--maroon-900);
+      font-weight: 800; font-size: 1rem; letter-spacing: -.02em;
+    }
+    .brand h1 {
+      margin: 0; font-family: var(--serif); font-weight: 700;
+      font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.1;
+      display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+    }
+    .brand .tag {
+      font-family: var(--sans); font-size: .62rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em;
+      border: 1px solid rgba(255,255,255,.4); border-radius: 999px;
+      padding: .18rem .55rem; color: #f9e8ee;
+    }
+    .brand p {
+      margin: .2rem 0 0; font-size: .8rem; color: #f3d9e2;
+      max-width: 46ch;
+    }
+    .head-status { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .head-pill {
+      display: inline-flex; align-items: center; gap: .45rem;
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.22);
+      color: #fff; border-radius: 999px; padding: .35rem .8rem;
+      font-size: .75rem; font-weight: 600; white-space: nowrap;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--amber-500); flex: none; }
+    .dot.ok { background: #34d399; }
+    .dot.bad { background: #f87171; }
+
+    /* Estructura */
+    main { max-width: 1240px; margin: 0 auto; padding: 1.4rem clamp(.9rem, 3vw, 1.6rem) 2rem; }
+    .panel {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: clamp(1rem, 2.4vw, 1.6rem);
+      margin-bottom: 1.25rem;
+    }
+    .panel-head {
+      display: flex; flex-wrap: wrap; gap: .6rem 1rem;
+      align-items: baseline; justify-content: space-between;
+      border-bottom: 1px solid var(--line); padding-bottom: .85rem; margin-bottom: 1.1rem;
+    }
+    .panel-title { display: flex; align-items: center; gap: .65rem; flex-wrap: wrap; min-width: 0; }
+    .chip {
+      width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center;
+      font-size: .72rem; font-weight: 800; color: #fff; background: var(--teal-600); flex: none;
+    }
+    .chip.red { background: var(--red-600); }
+    .chip.amber { background: var(--amber-600); }
+    .panel h2 {
+      margin: 0; font-size: clamp(1.05rem, 1.8vw, 1.3rem); letter-spacing: -.015em;
+      font-weight: 800; color: var(--slate-700);
+    }
+    .panel h2 .sub { font-weight: 500; color: var(--muted); font-size: .88rem; }
+    .eyebrow {
+      margin: 0 0 .35rem; font-family: var(--mono); font-size: .68rem;
+      text-transform: uppercase; letter-spacing: .08em; color: var(--teal-700); font-weight: 600;
+    }
+    .small { font-size: .82rem; color: var(--muted); }
+    .mono { font-family: var(--mono); }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+    }
+
+    /* Consulta */
+    .consulta-top {
+      display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+      gap: 1.2rem; align-items: end; border-bottom: 1px solid var(--line);
+      padding-bottom: 1rem; margin-bottom: 1rem;
+    }
+    .consulta-top h2 {
+      margin: .15rem 0 .2rem; font-family: var(--serif); font-size: clamp(1.5rem, 3vw, 2rem);
+      color: var(--ink); letter-spacing: -.02em;
+    }
+    .consulta-form { display: flex; flex-wrap: wrap; gap: .55rem; align-items: end; justify-content: flex-end; }
+    .field { display: flex; flex-direction: column; gap: .3rem; min-width: 230px; flex: 1 1 230px; }
+    .field label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+    select {
+      font: inherit; font-size: .86rem; padding: .55rem .65rem; border-radius: 8px;
+      border: 1px solid #94a3b8; background: #fff; color: var(--ink); width: 100%;
+    }
+    button {
+      font: inherit; font-size: .85rem; font-weight: 700; cursor: pointer;
+      border: 0; border-radius: 8px; padding: .62rem 1rem;
+      background: var(--teal-600); color: #fff; display: inline-flex; align-items: center; gap: .4rem;
+      transition: background .15s ease;
+    }
+    button:hover { background: var(--teal-700); }
+    button[disabled] { opacity: .65; cursor: progress; }
+
+    .consulta-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(260px, .9fr); gap: 1.1rem; align-items: start; }
+    .propuesta { border: 1.5px solid #5eead4; background: var(--teal-50); border-radius: 11px; padding: 1rem; }
+    .propuesta-head { display: flex; justify-content: space-between; gap: .7rem; flex-wrap: wrap; align-items: center; margin-bottom: .55rem; }
+    .badge {
+      display: inline-flex; align-items: center; gap: .35rem; font-size: .64rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .07em; color: #fff; background: var(--teal-600);
+      border-radius: 5px; padding: .22rem .5rem;
+    }
+    .meta-rule { font-family: var(--mono); font-size: .72rem; color: var(--muted); }
+    .propuesta h3 { margin: .2rem 0 .35rem; font-size: 1.06rem; color: var(--ink); letter-spacing: -.01em; }
+    .propuesta .expl { margin: .5rem 0 0; }
+    .expl { margin: .3rem 0 0; padding-left: 1.1rem; font-size: .85rem; color: var(--slate-700); }
+    .expl li { margin-bottom: .28rem; }
+    .expl li::marker { color: var(--teal-600); }
+    .alternativas h3 {
+      margin: 0 0 .55rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em;
+      color: var(--muted); font-weight: 700;
+    }
+    .alt-card {
+      border: 1px solid var(--line); border-left: 3px solid #cbd5e1; border-radius: 9px;
+      padding: .7rem .8rem; margin-bottom: .55rem; background: #fff;
+    }
+    .alt-card.warn { border-left-color: var(--amber-500); background: var(--amber-50); }
+    .alt-card h4 { margin: 0 0 .25rem; font-size: .86rem; color: var(--ink); }
+    .alt-card .tag-mini {
+      font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+      color: var(--muted); display: block; margin-bottom: .2rem;
+    }
+    details.evidence { margin-top: .6rem; }
+    details.evidence summary {
+      cursor: pointer; font-size: .7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--muted);
+    }
+    details.evidence code {
+      display: block; font-family: var(--mono); font-size: .7rem; color: var(--slate-700);
+      background: #f8fafc; border: 1px solid var(--line); border-radius: 6px;
+      padding: .35rem .5rem; margin-top: .35rem; overflow-wrap: anywhere;
+    }
+
+    /* Inventario */
+    .legend { display: flex; gap: 1rem; flex-wrap: wrap; font-size: .72rem; color: var(--muted); }
+    .legend b { color: var(--slate-700); }
+    .legend i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: .3rem; }
+    .inv-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: .6rem; }
+    .inv-card {
+      border: 1px solid var(--line); border-top: 3px solid var(--teal-600);
+      border-radius: 9px; padding: .7rem .65rem; background: #fff;
+    }
+    .inv-card.empty { border-top-color: var(--red-600); background: #fffafa; }
+    .inv-status {
+      font-size: .58rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
+      color: var(--teal-700); margin-bottom: .2rem;
+    }
+    .inv-card.empty .inv-status { color: var(--red-700); }
+    .inv-type { font-size: 1.02rem; font-weight: 700; letter-spacing: -.01em; }
+    .inv-count { font-family: var(--serif); font-size: 2rem; line-height: 1.05; margin-top: .2rem; }
+    .inv-label { font-size: .7rem; color: var(--muted); }
+
+    /* Situaciones */
+    .cards-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+    .cards-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .8rem; }
+    .case-card { border: 1px solid var(--line); border-radius: 10px; padding: .8rem; background: #fff; }
+    .case-card.teal { background: var(--teal-50); border-color: #99f6e4; }
+    .case-card.red { background: var(--red-50); border-color: #fecaca; }
+    .case-card.amber { background: var(--amber-50); border-color: #fde68a; }
+    .case-card h3 { margin: 0 0 .3rem; font-size: .95rem; }
+    .case-card .case-meta { font-family: var(--mono); font-size: .68rem; color: var(--muted); }
+    .tag {
+      display: inline-block; font-size: .6rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .07em; border-radius: 5px; padding: .18rem .45rem; margin-bottom: .35rem;
+    }
+    .tag.teal { background: var(--teal-100); color: var(--teal-700); }
+    .tag.red { background: var(--red-100); color: var(--red-700); }
+    .tag.amber { background: var(--amber-100); color: #92400e; }
+    .tag.slate { background: #e2e8f0; color: var(--slate-700); }
+
+    .trazabilidad { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; margin-bottom: .9rem; }
+    .traz-step {
+      border: 1px solid var(--line); border-radius: 9px; padding: .6rem .7rem; background: #fbfcfd;
+      font-size: .76rem; color: var(--slate-700);
+    }
+    .traz-step b { display: block; font-family: var(--mono); font-size: .66rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+
+    .dos-columnas { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, .55fr); gap: 1rem; align-items: start; }
+    .nota {
+      border: 1px dashed #94a3b8; background: #f8fafc; border-radius: 10px;
+      padding: .8rem; font-size: .78rem; color: var(--slate-700);
+    }
+    .nota h3 { margin: 0 0 .35rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+    .nota p { margin: 0 0 .4rem; }
+
+    .panel-alerta { border-color: #fecaca; background: linear-gradient(180deg, #fff 0%, #fff8f8 100%); }
+    .motor {
+      margin-top: .9rem; background: #1e293b; color: #a7f3d0; border-radius: 8px;
+      padding: .6rem .8rem; font-family: var(--mono); font-size: .7rem;
+      overflow-wrap: anywhere; line-height: 1.6;
+    }
+    .motor span { color: #64748b; }
+
+    .estados { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; }
+    .estado-card { border: 1px solid var(--line); border-radius: 9px; padding: .65rem .8rem; font-size: .78rem; color: var(--slate-700); background: #fff; }
+    .estado-card b { display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .2rem; }
+
+    .error-box {
+      border: 1px solid #fecaca; background: var(--red-50); color: #7f1d1d; border-radius: 9px;
+      padding: .75rem .85rem; font-size: .82rem;
+    }
+    .empty-box {
+      border: 1px dashed var(--line); border-radius: 9px; padding: .8rem;
+      color: var(--muted); font-size: .82rem; background: #fbfcfd;
+    }
+    .loading { color: var(--muted); font-size: .82rem; }
+
+    footer {
+      max-width: 1240px; margin: 0 auto; padding: 0 clamp(.9rem, 3vw, 1.6rem) 2.2rem;
+      display: flex; flex-wrap: wrap; gap: .6rem 1rem; justify-content: space-between;
+      font-size: .72rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 1rem;
+    }
+
+    @media (max-width: 1000px) {
+      .inv-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .cards-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .consulta-grid, .dos-columnas { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 780px) {
+      .banner .meta { display: none; }
+      .consulta-top { grid-template-columns: 1fr; }
+      .consulta-form { justify-content: stretch; }
+      .cards-3, .trazabilidad, .estados { grid-template-columns: 1fr; }
+      .head-status { width: 100%; }
+    }
+    @media (max-width: 520px) {
+      .inv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .cards-4 { grid-template-columns: 1fr; }
+      .brand p { display: none; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <p class="sub">Programación lógica · SWI-Prolog</p>
-    <h1>Gemelo digital del banco de sangre</h1>
-    <p class="sub">Fotografía ficticia · hora 100; incidente prospectivo en hora 102 del modelo</p>
-  </header>
-  <main>
-    <p class="notice"><strong>Simulación educativa.</strong> No representa el inventario Erlang en vivo, no reserva unidades y no sirve para decisiones médicas.</p>
-    <div class="layout">
-      <section class="panel" aria-labelledby="inventario-titulo">
-        <h2 id="inventario-titulo">Glóbulos rojos utilizables</h2>
-        <p class="muted">Conteos calculados por Prolog: excluyen unidades reservadas y vencidas.</p>
-        <div class="grid" id="inventario" aria-live="polite">Cargando inventario…</div>
-      </section>
-      <section class="panel" aria-labelledby="consulta-titulo">
-        <h2 id="consulta-titulo">Preguntar al gemelo</h2>
-        <label for="solicitud">Solicitud ficticia</label>
-        <select id="solicitud">
-          <option value="s1">s1 · Paciente A+ · tipo exacto agotado</option>
-          <option value="s2">s2 · Urgencia O− y reserva de cirugía</option>
-          <option value="s3">s3 · Fuentes de tipo contradictorias</option>
-        </select>
-        <button id="consultar" type="button">Consultar decisión y explicación</button>
-        <p class="muted">Las propuestas no cambian el estado de ninguna unidad.</p>
-        <div id="respuestas" role="status" aria-live="polite">Selecciona una solicitud para ver la deducción.</div>
-      </section>
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+
+  <aside class="banner" aria-label="Aviso académico">
+    <span>⚠ SIMULACIÓN EDUCATIVA · NO TOMAR DECISIONES MÉDICAS NI CLÍNICAS</span>
+    <span class="meta"><span>Motor: SWI-Prolog</span><span>Instancia: Banco #44</span></span>
+  </aside>
+
+  <header class="masthead">
+    <div class="masthead-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">44</div>
+        <div>
+          <h1>Janus <span class="tag">Gemelo digital</span></h1>
+          <p>Simulador declarativo de trazabilidad, contingencias e inventario hemodinámico basado en inferencia lógica de primer orden.</p>
+        </div>
+      </div>
+      <div class="head-status">
+        <span class="head-pill"><span class="dot" id="api-dot"></span><span id="api-estado">API Prolog: comprobando…</span></span>
+        <span class="head-pill">Hora base: <span class="mono" id="hora-base">t = —</span></span>
+      </div>
     </div>
-    <section class="panel pending" aria-labelledby="reservas-titulo">
-      <h2 id="reservas-titulo">Reservas y cirugías · situación 2</h2>
-      <p class="muted">Prolog compara caducidades, busca repuestos y reconoce la confirmación de no uso tras una cirugía. El margen de liberación de 2 horas es ficticio. Solo propone: no libera ni mueve bolsas.</p>
-      <div id="reservas" aria-live="polite">Cargando estado de reservas…</div>
+  </header>
+
+  <main id="contenido">
+    <section class="panel" aria-labelledby="consulta-titulo">
+      <div class="consulta-top">
+        <div>
+          <p class="eyebrow">Predicado: decide/3 · Sin efectos en la base</p>
+          <h2 id="consulta-titulo">Preguntar al gemelo</h2>
+          <p class="small" style="margin:0">Evalúa alternativas de asignación sobre la fotografía ficticia. Prolog ordena, descarta y explica; la página solo presenta la respuesta.</p>
+        </div>
+        <form class="consulta-form" id="form-consulta">
+          <div class="field">
+            <label for="solicitud">Situación activa</label>
+            <select id="solicitud" name="solicitud">
+              <option value="s1">s1 · Paciente A+ sin tipo exacto</option>
+              <option value="s2">s2 · Urgencia O− y reserva de cirugía</option>
+              <option value="s3">s3 · Fuentes de tipo contradictorias</option>
+            </select>
+          </div>
+          <button type="submit" id="consultar">Consultar decisión</button>
+        </form>
+      </div>
+      <div class="consulta-grid">
+        <div id="propuesta" aria-live="polite"><p class="loading">Consultando a Prolog…</p></div>
+        <div class="alternativas">
+          <h3>Alternativas evaluadas por el motor</h3>
+          <div id="alternativas" aria-live="polite"><p class="loading">Sin consulta todavía.</p></div>
+        </div>
+      </div>
     </section>
-    <section class="panel pending" aria-labelledby="incidente-titulo">
-      <h2 id="incidente-titulo">Prueba positiva tardía · situación 3</h2>
-      <p class="muted">Escenario ficticio en la hora 102, independiente de la fotografía base en hora 100. No ejecuta retiros ni avisos. La ausencia del receptor registrado no equivale a «no transfundida».</p>
-      <div id="incidente" aria-live="polite">Cargando trazabilidad…</div>
+
+    <section class="panel" aria-labelledby="inventario-titulo">
+      <div class="panel-head">
+        <div class="panel-title">
+          <h2 id="inventario-titulo">Inventario general de unidades utilizables</h2>
+        </div>
+        <div class="legend" aria-hidden="true">
+          <span><i style="background:var(--teal-600)"></i><b>Disponible</b></span>
+          <span><i style="background:var(--red-600)"></i><b>Sin existencias</b></span>
+        </div>
+      </div>
+      <p class="small" style="margin:-.4rem 0 .9rem">Conteo calculado por Prolog: excluye unidades reservadas, vencidas o sin liberación documentada.</p>
+      <div class="inv-grid" id="inventario" aria-live="polite"><p class="loading">Cargando inventario…</p></div>
     </section>
-    <section class="panel pending" aria-labelledby="falla-titulo">
-      <h2 id="falla-titulo">Falla de refrigeración · situación 4</h2>
-      <p class="muted">Escenario aparte (horas 92–102) con equipo de respaldo hipotético. Lectura fuera de rango: exposición; hueco mayor de 2 horas: no se sabe. Ni una lectura final normal ni un hueco prueban seguridad.</p>
-      <div id="falla" aria-live="polite">Cargando exposición…</div>
+
+    <section class="panel" aria-labelledby="reservas-titulo">
+      <div class="panel-head">
+        <div class="panel-title">
+          <span class="chip" aria-hidden="true">2</span>
+          <h2 id="reservas-titulo">Reservas y cirugías <span class="sub">· situación 2</span></h2>
+        </div>
+        <span class="small">Evaluación de caducidad y desabastecimiento quirúrgico</span>
+      </div>
+      <p class="small" style="margin:-.4rem 0 .9rem">Solo propuestas: no se libera, mueve ni reserva ninguna bolsa. El margen de liberación de 2 horas es un supuesto ficticio.</p>
+      <div class="cards-3" id="reservas" aria-live="polite"><p class="loading">Cargando reservas…</p></div>
     </section>
-    <section class="panel pending" aria-labelledby="accidente-titulo">
-      <h2 id="accidente-titulo">Accidente y reparto · situación 5</h2>
-      <p class="muted">Escenario alternativo en hora 94, anterior a las reservas. El accidente consume 2 unidades O− ficticias; el umbral crítico educativo es menos de 2. Ninguna asignación se ejecuta.</p>
-      <div id="accidente" aria-live="polite">Cargando reparto…</div>
+
+    <section class="panel" aria-labelledby="incidente-titulo">
+      <div class="panel-head">
+        <div class="panel-title">
+          <span class="chip amber" aria-hidden="true">3</span>
+          <h2 id="incidente-titulo">Prueba positiva tardía <span class="sub">· situación 3</span></h2>
+        </div>
+        <span class="small">Horario independiente: <span class="mono" id="incidente-hora">t = —</span></span>
+      </div>
+      <p class="small" style="margin:-.4rem 0 .9rem">Trazabilidad donante → donación → unidad. Un destino sin registro responde «no se sabe»; no significa que no se transfundió.</p>
+      <div class="trazabilidad" aria-hidden="true">
+        <div class="traz-step"><b>Paso 1</b>Donante ficticio</div>
+        <div class="traz-step"><b>Paso 2</b>Donación y prueba</div>
+        <div class="traz-step"><b>Paso 3</b>Unidad afectada</div>
+        <div class="traz-step"><b>Paso 4</b>Destino o reserva</div>
+      </div>
+      <div class="cards-4" id="incidente" aria-live="polite"><p class="loading">Cargando trazabilidad…</p></div>
     </section>
-    <section class="panel pending">
-      <h2>Alcance del prototipo</h2>
-      <p class="muted">Cinco situaciones ficticias consultables; faltan validación clínica, ejecución de transiciones reales y una exportación de Google Stitch. Esta interfaz se implementó a mano.</p>
+
+    <section class="panel" aria-labelledby="falla-titulo">
+      <div class="panel-head">
+        <div class="panel-title">
+          <span class="chip amber" aria-hidden="true">4</span>
+          <h2 id="falla-titulo">Falla de refrigeración <span class="sub">· situación 4</span></h2>
+        </div>
+        <span class="small">Ventana histórica: <span class="mono" id="falla-ventana">t = —</span></span>
+      </div>
+      <p class="small" style="margin:-.4rem 0 .9rem">Subescenario con equipo de respaldo hipotético. Una lectura fuera de rango implica exposición; un hueco mayor de 2 horas impide afirmar seguridad.</p>
+      <div class="dos-columnas">
+        <div class="cards-3" id="falla" aria-live="polite"><p class="loading">Cargando exposición…</p></div>
+        <div class="nota" id="falla-nota">
+          <h3>Supuesto del escenario</h3>
+          <p>Equipo de respaldo hipotético para mostrar traslados sin alterar los tres equipos de la fotografía base.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel panel-alerta" aria-labelledby="accidente-titulo">
+      <div class="panel-head">
+        <div class="panel-title">
+          <span class="chip red" aria-hidden="true">5</span>
+          <h2 id="accidente-titulo">Accidente y reparto <span class="sub">· situación 5</span></h2>
+        </div>
+        <span class="small">Horario del evento: <span class="mono" id="accidente-hora">t = —</span></span>
+      </div>
+      <p class="small" style="margin:-.4rem 0 .9rem">Foto contrafactual anterior a la reserva de u4. Consumo ficticio de 2 unidades O−; el umbral crítico educativo es menos de 2 utilizables.</p>
+      <div class="cards-4" id="accidente" aria-live="polite"><p class="loading">Cargando reparto…</p></div>
+      <div class="motor" id="motor" aria-live="polite"><span>prolog&gt;</span> esperando consulta…</div>
+      <p class="small" style="margin:.6rem 0 0">Ninguna asignación se ejecuta sobre el inventario: el motor solo propone y justifica.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="estados-titulo">
+      <div class="panel-head">
+        <div class="panel-title">
+          <h2 id="estados-titulo" style="font-size:1rem">Estados de la interfaz</h2>
+        </div>
+        <span class="small">Toda decisión llega de la API SWI-Prolog</span>
+      </div>
+      <div class="estados">
+        <div class="estado-card"><b style="color:var(--teal-700)">Listo</b>Datos y explicaciones recibidos del motor lógico.</div>
+        <div class="estado-card"><b style="color:var(--amber-600)">Cargando</b>Consulta en curso; la página no adelanta respuestas.</div>
+        <div class="estado-card"><b style="color:var(--red-700)">Error</b>El gemelo no respondió; se muestra el fallo sin inventar datos.</div>
+      </div>
     </section>
   </main>
-  <footer>Los hechos, las reglas y las explicaciones se calculan en SWI-Prolog. Esta página solo presenta sus respuestas.</footer>
+
+  <footer>
+    <span>Janus · Gemelo digital del banco de sangre #44 · datos ficticios</span>
+    <span>Diseño base generado en Google Stitch · reglas y datos en SWI-Prolog</span>
+  </footer>
+
   <script>
-    const inventario = document.getElementById('inventario');
-    const respuestas = document.getElementById('respuestas');
-    const boton = document.getElementById('consultar');
-    const solicitud = document.getElementById('solicitud');
-    const reservas = document.getElementById('reservas');
-    const incidente = document.getElementById('incidente');
-    const falla = document.getElementById('falla');
-    const accidente = document.getElementById('accidente');
+    const $ = (id) => document.getElementById(id);
+    const estadoApi = $('api-estado');
+    const puntoApi = $('api-dot');
+
+    function marcarApi(ok) {
+      estadoApi.textContent = ok ? 'API Prolog: conectada (solo lectura)' : 'API Prolog: sin conexión';
+      puntoApi.className = 'dot ' + (ok ? 'ok' : 'bad');
+    }
+
+    function nodo(tag, clase, texto) {
+      const n = document.createElement(tag);
+      if (clase) n.className = clase;
+      if (texto !== undefined) n.textContent = texto;
+      return n;
+    }
+
+    function lista(items, clase) {
+      const ul = nodo('ul', clase || 'expl');
+      for (const texto of items) ul.append(nodo('li', null, texto));
+      return ul;
+    }
+
+    function evidencia(items) {
+      if (!items || items.length === 0) return document.createDocumentFragment();
+      const det = nodo('details', 'evidence');
+      det.append(nodo('summary', null, 'Evidencia Prolog'));
+      for (const termino of items) det.append(nodo('code', null, termino));
+      return det;
+    }
+
+    function tipoTexto(tipo) {
+      return tipo.replace('_neg', '−').replace('_pos', '+').toUpperCase();
+    }
+
     async function pedir(url) {
-      const r = await fetch(url, {headers: {'Accept': 'application/json'}});
-      if (!r.ok) throw new Error('El gemelo no respondió (' + r.status + ').');
-      return r.json();
+      const control = new AbortController();
+      const limite = setTimeout(() => control.abort(), 20000);
+      try {
+        const r = await fetch(url, {headers: {Accept: 'application/json'}, signal: control.signal});
+        if (!r.ok) throw new Error('El gemelo respondió ' + r.status + '.');
+        marcarApi(true);
+        return await r.json();
+      } catch (error) {
+        marcarApi(false);
+        throw error;
+      } finally {
+        clearTimeout(limite);
+      }
     }
+
+    function mostrarError(contenedor, error) {
+      contenedor.replaceChildren();
+      const caja = nodo('div', 'error-box');
+      caja.append(nodo('strong', null, 'No se pudo consultar al gemelo. '));
+      caja.append(document.createTextNode(error.message || 'Error desconocido.'));
+      contenedor.append(caja);
+    }
+
+    function tarjetaCaso(clase, etiqueta, titulo, cuerpo) {
+      const card = nodo('article', 'case-card' + (clase ? ' ' + clase : ''));
+      if (etiqueta) card.append(nodo('span', 'tag ' + clase, etiqueta));
+      card.append(nodo('h3', null, titulo));
+      if (cuerpo) card.append(cuerpo);
+      return card;
+    }
+
     async function cargarInventario() {
+      const contenedor = $('inventario');
       try {
-        const {inventario: filas} = await pedir('/api/inventario');
-        inventario.replaceChildren();
-        for (const fila of filas) {
-          const card = document.createElement('div');
-          card.className = 'card' + (fila.disponibles === 0 ? ' empty' : '');
-          const tipo = document.createElement('strong');
-          const cantidad = document.createElement('span');
-          tipo.textContent = fila.tipo.replace('_neg', '−').replace('_pos', '+').toUpperCase();
-          cantidad.textContent = fila.disponibles + ' utilizables';
-          card.append(tipo, cantidad);
-          inventario.append(card);
+        const datos = await pedir('/api/inventario');
+        $('hora-base').textContent = 't = ' + datos.hora;
+        contenedor.replaceChildren();
+        for (const fila of datos.inventario) {
+          const vacia = fila.disponibles === 0;
+          const card = nodo('div', 'inv-card' + (vacia ? ' empty' : ''));
+          card.append(nodo('div', 'inv-status', vacia ? 'Sin existencias' : 'Disponible'));
+          card.append(nodo('div', 'inv-type', tipoTexto(fila.tipo)));
+          card.append(nodo('div', 'inv-count', String(fila.disponibles)));
+          card.append(nodo('div', 'inv-label', 'utilizables'));
+          contenedor.append(card);
         }
-      } catch (e) { inventario.textContent = e.message; }
+      } catch (error) { mostrarError(contenedor, error); }
     }
+
+    function tituloDecision(d) {
+      if (d.accion === 'propuesta') return 'Unidad ' + d.unidad + ' · ' + tipoTexto(d.tipo);
+      if (d.accion === 'reacomodo') return d.unidad + ' para la urgencia';
+      if (d.accion === 'no_se_sabe') return 'No se sabe el tipo del paciente';
+      return 'Sin existencias compatibles';
+    }
+
+    function detalleDecision(d) {
+      if (d.accion === 'reacomodo') return 'Repuesto ' + d.repuesto + ' para ' + d.cirugia + '.';
+      return '';
+    }
+
+    async function cargarDecision() {
+      const solicitud = $('solicitud').value;
+      const propuesta = $('propuesta');
+      const alternativas = $('alternativas');
+      const boton = $('consultar');
+      boton.disabled = true;
+      propuesta.replaceChildren(nodo('p', 'loading', 'Consultando a Prolog…'));
+      try {
+        const datos = await pedir('/api/decidir?id=' + encodeURIComponent(solicitud));
+        propuesta.replaceChildren();
+        alternativas.replaceChildren();
+        if (!datos.opciones || datos.opciones.length === 0) {
+          propuesta.append(nodo('div', 'empty-box', 'Esta consulta todavía no tiene respuesta implementada.'));
+          alternativas.append(nodo('div', 'empty-box', 'Sin alternativas registradas.'));
+          return;
+        }
+        const [primera, ...resto] = datos.opciones;
+        const d = primera.decision;
+        const card = nodo('div', 'propuesta');
+        const cabecera = nodo('div', 'propuesta-head');
+        cabecera.append(nodo('span', 'badge', 'Propuesta preferida del motor'));
+        cabecera.append(nodo('span', 'meta-rule', 'solicitud ' + datos.solicitud + ' · ' + d.accion));
+        card.append(cabecera);
+        card.append(nodo('h3', null, tituloDecision(d)));
+        const detalle = detalleDecision(d);
+        if (detalle) card.append(nodo('p', 'small', detalle));
+        card.append(lista(primera.explicacion));
+        card.append(evidencia(primera.evidencia));
+        propuesta.append(card);
+
+        if (resto.length === 0) {
+          alternativas.append(nodo('div', 'empty-box', 'El motor no ofreció otras alternativas para esta solicitud.'));
+        } else {
+          resto.forEach((opcion, indice) => {
+            const alt = nodo('article', 'alt-card' + (opcion.decision.accion === 'no_se_sabe' ? ' warn' : ''));
+            alt.append(nodo('span', 'tag-mini', 'Alternativa ' + (indice + 2)));
+            alt.append(nodo('h4', null, tituloDecision(opcion.decision)));
+            alt.append(lista(opcion.explicacion));
+            alt.append(evidencia(opcion.evidencia));
+            alternativas.append(alt);
+          });
+        }
+      } catch (error) {
+        propuesta.replaceChildren();
+        mostrarError(propuesta, error);
+        alternativas.replaceChildren(nodo('div', 'empty-box', 'Sin datos para mostrar.'));
+      } finally {
+        boton.disabled = false;
+      }
+    }
+
+    const ETIQUETAS_RESERVA = {
+      reacomodable: ['teal', 'Reacomodable'],
+      sin_cobertura: ['red', 'Sin cobertura'],
+      liberable: ['amber', 'Liberación solo propuesta']
+    };
+
     async function cargarReservas() {
+      const contenedor = $('reservas');
       try {
-        const {cirugias} = await pedir('/api/reservas');
-        reservas.replaceChildren();
-        for (const c of cirugias) {
-          const card = document.createElement('article');
-          card.className = 'reservation' + (c.estado === 'sin_cobertura' ? ' uncertain' : '');
-          const titulo = document.createElement('strong');
-          titulo.textContent = c.cirugia + ' · ' + (
-            c.estado === 'sin_cobertura' ? 'sin cobertura con el inventario actual' :
-            c.estado === 'liberable' ? 'reserva ' + c.unidad + ': liberación propuesta' :
-            'puede reacomodarse');
-          const detalle = document.createElement('ul');
-          for (const texto of c.evidencia) {
-            const linea = document.createElement('li'); linea.textContent = texto;
-            detalle.append(linea);
-          }
-          card.append(titulo, detalle);
-          reservas.append(card);
+        const datos = await pedir('/api/reservas');
+        contenedor.replaceChildren();
+        for (const c of datos.cirugias) {
+          const [clase, etiqueta] = ETIQUETAS_RESERVA[c.estado] || ['slate', c.estado];
+          const detalle = c.estado === 'reacomodable'
+            ? 'Reserva ' + c.unidad + ' → repuesto ' + c.repuesto
+            : c.estado === 'liberable' ? 'Reserva ' + c.unidad : '';
+          const cuerpo = document.createDocumentFragment();
+          if (detalle) cuerpo.append(nodo('p', 'case-meta', detalle));
+          cuerpo.append(lista(c.evidencia));
+          contenedor.append(tarjetaCaso(clase, etiqueta, c.cirugia, cuerpo));
         }
-      } catch (e) { reservas.textContent = e.message; }
+      } catch (error) { mostrarError(contenedor, error); }
     }
+
     async function cargarIncidente() {
+      const contenedor = $('incidente');
       try {
         const datos = await pedir('/api/incidente');
-        incidente.replaceChildren();
+        $('incidente-hora').textContent = 't = ' + datos.hora;
+        contenedor.replaceChildren();
         const grupos = [
-          ['Retirar', datos.retirar, 'unidad'],
-          ['Avisar', datos.avisar, 'paciente'],
-          ['No se sabe el receptor', datos.no_se_sabe, 'unidad'],
-          ['Reserva afectada', datos.reservas_afectadas, 'cirugia']
+          ['red', 'Retirar / bloquear', 'Unidades a retirar', datos.retirar, 'unidad'],
+          ['teal', 'Avisar a servicio', 'Receptores a avisar', datos.avisar, 'paciente'],
+          ['amber', 'No se sabe', 'Destino desconocido', datos.no_se_sabe, 'unidad'],
+          ['amber', 'Reserva afectada', 'Reservas afectadas', datos.reservas_afectadas, 'cirugia']
         ];
-        for (const [nombre, filas, clave] of grupos) {
-          const titulo = document.createElement('h3');
-          titulo.textContent = nombre;
-          incidente.append(titulo);
-          for (const fila of filas) {
-            const card = document.createElement('article');
-            card.className = 'reservation' + (clave === 'cirugia' || nombre === 'No se sabe el receptor' ? ' uncertain' : '');
-            const encabezado = document.createElement('strong');
-            encabezado.textContent = fila[clave];
-            const lista = document.createElement('ul');
-            for (const texto of fila.explicacion) {
-              const li = document.createElement('li');
-              li.textContent = texto;
-              lista.append(li);
-            }
-            card.append(encabezado, lista);
-            incidente.append(card);
+        for (const [clase, etiqueta, titulo, filas, clave] of grupos) {
+          const cuerpo = document.createDocumentFragment();
+          if (!filas || filas.length === 0) {
+            cuerpo.append(nodo('p', 'small', 'Sin resultados en este grupo.'));
           }
+          for (const fila of filas || []) {
+            const bloque = nodo('div', 'case-meta');
+            bloque.append(nodo('strong', null, fila[clave]));
+            bloque.append(lista(fila.explicacion));
+            bloque.append(evidencia(fila.evidencia));
+            cuerpo.append(bloque);
+          }
+          contenedor.append(tarjetaCaso(clase, etiqueta, titulo, cuerpo));
         }
-      } catch (e) { incidente.textContent = e.message; }
+      } catch (error) { mostrarError(contenedor, error); }
     }
-    function tarjetaExplicacion(contenedor, tituloTexto, mensajes, alerta) {
-      const card = document.createElement('article');
-      card.className = 'reservation' + (alerta ? ' uncertain' : '');
-      const titulo = document.createElement('strong');
-      titulo.textContent = tituloTexto;
-      const lista = document.createElement('ul');
-      for (const mensaje of mensajes) {
-        const li = document.createElement('li');
-        li.textContent = mensaje;
-        lista.append(li);
-      }
-      card.append(titulo, lista);
-      contenedor.append(card);
-    }
+
+    const ESTADOS_FALLA = [
+      ['comprometida', 'red', 'Comprometida'],
+      ['no_se_sabe', 'amber', 'No se sabe'],
+      ['salvada', 'teal', 'Sin exposición detectada']
+    ];
+
     async function cargarFalla() {
+      const contenedor = $('falla');
       try {
         const datos = await pedir('/api/falla');
-        falla.replaceChildren();
-        for (const fila of datos.resultados) {
-          tarjetaExplicacion(falla, fila.titulo,
-            fila.explicacion, fila.estado !== 'salvada');
+        $('falla-ventana').textContent = 't = ' + datos.inicio + '–' + datos.fin;
+        contenedor.replaceChildren();
+        for (const [estado, clase, etiqueta] of ESTADOS_FALLA) {
+          const filas = datos.resultados.filter((r) => r.estado === estado);
+          const cuerpo = document.createDocumentFragment();
+          if (filas.length === 0) cuerpo.append(nodo('p', 'small', 'Sin unidades en este grupo.'));
+          for (const fila of filas) {
+            const bloque = nodo('div', 'case-meta');
+            bloque.append(nodo('strong', null, fila.unidad));
+            bloque.append(lista(fila.explicacion));
+            cuerpo.append(bloque);
+          }
+          contenedor.append(tarjetaCaso(clase, etiqueta, etiqueta, cuerpo));
         }
-      } catch (e) { falla.textContent = e.message; }
+        const nota = $('falla-nota');
+        nota.replaceChildren();
+        nota.append(nodo('h3', null, 'Supuesto del escenario'));
+        nota.append(nodo('p', null, datos.nota));
+        nota.append(nodo('p', null, 'Hueco máximo tolerado por el modelo: ' + datos.max_hueco_horas + ' horas.'));
+      } catch (error) { mostrarError(contenedor, error); }
     }
+
+    const TONO_ACCION = {
+      asignar: ['teal', 'Asignación'],
+      sin_cobertura: ['red', 'Sin cobertura'],
+      no_se_sabe: ['amber', 'No se sabe'],
+      nivel_critico: ['red', 'Nivel crítico']
+    };
+
     async function cargarAccidente() {
+      const contenedor = $('accidente');
+      const motor = $('motor');
       try {
         const datos = await pedir('/api/accidente');
-        accidente.replaceChildren();
+        $('accidente-hora').textContent = 't = ' + datos.hora;
+        contenedor.replaceChildren();
         for (const fila of datos.decisiones) {
-          const d = fila.decision;
-          tarjetaExplicacion(accidente, d.titulo, fila.explicacion,
-            d.accion !== 'asignar');
+          const [clase, etiqueta] = TONO_ACCION[fila.decision.accion] || ['slate', fila.decision.accion];
+          const cuerpo = document.createDocumentFragment();
+          cuerpo.append(lista(fila.explicacion));
+          cuerpo.append(evidencia(fila.evidencia));
+          contenedor.append(tarjetaCaso(clase, etiqueta, fila.decision.titulo || etiqueta, cuerpo));
         }
-      } catch (e) { accidente.textContent = e.message; }
+        const terminos = datos.decisiones.flatMap((f) => f.evidencia || []);
+        motor.replaceChildren(nodo('span', null, 'prolog> '), document.createTextNode(terminos.join(' · ')));
+      } catch (error) {
+        mostrarError(contenedor, error);
+        motor.replaceChildren(nodo('span', null, 'prolog> '), document.createTextNode('sin conexión con el motor'));
+      }
     }
-    async function consultar() {
-      boton.disabled = true;
-      respuestas.textContent = 'Consultando a Prolog…';
-      try {
-        const datos = await pedir('/api/decidir?id=' + encodeURIComponent(solicitud.value));
-        respuestas.replaceChildren();
-        for (const [i, opcion] of datos.opciones.entries()) {
-          const card = document.createElement('article');
-          card.className = 'result' + (i === 0 ? ' primary' : '');
-          const titulo = document.createElement('h3');
-          const d = opcion.decision;
-          titulo.textContent = d.accion === 'propuesta'
-            ? (i === 0 ? 'Propuesta preferida' : 'Alternativa ' + (i + 1)) + ': ' + d.unidad + ' (' + d.tipo + ')'
-            : d.accion === 'reacomodo' ? 'Propuesta: ' + d.unidad + ' para urgencia; ' + d.repuesto + ' para ' + d.cirugia
-            : d.accion === 'no_se_sabe' ? 'No se sabe el tipo del paciente' : 'Sin existencias';
-          const lista = document.createElement('ul');
-          for (const explicacion of opcion.explicacion) {
-            const li = document.createElement('li'); li.textContent = explicacion;
-            lista.append(li);
-          }
-          card.append(titulo, lista);
-          respuestas.append(card);
-        }
-        if (datos.opciones.length === 0) respuestas.textContent = 'Esta consulta todavía no tiene respuesta implementada.';
-      } catch (e) { respuestas.textContent = e.message; }
-      finally { boton.disabled = false; }
-    }
-    boton.addEventListener('click', consultar);
+
+    $('form-consulta').addEventListener('submit', (evento) => {
+      evento.preventDefault();
+      cargarDecision();
+    });
+    $('solicitud').addEventListener('change', cargarDecision);
+
     cargarInventario();
+    cargarDecision();
     cargarReservas();
     cargarIncidente();
     cargarFalla();
     cargarAccidente();
-    consultar();
   </script>
 </body>
 </html>

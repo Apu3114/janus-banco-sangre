@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Janus · Gemelo digital del banco de sangre #44</title>
+  <!-- Google Fonts & Tailwind CDN -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            maroon: {
+              800: '#521629',
+              900: '#631c33',
+              950: '#3d0f1e',
+            },
+            canvas: '#f4f6f7',
+            teal: {
+              600: '#0d9488',
+              700: '#0f766e',
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+            },
+            amber: {
+              500: '#f59e0b',
+              600: '#d97706',
+              50: '#fffbeb',
+              100: '#fef3c7',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Newsreader', 'Georgia', 'serif'],
+            mono: ['"Fira Code"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Estilos de accesibilidad y foco táctil/teclado */
+    :focus-visible {
+      outline: 2px solid #0d9488;
+      outline-offset: 2px;
+    }
+    .badge-mono {
+      font-feature-settings: "tnum";
+    }
+  </style>
+</head>
+<body class="bg-canvas text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-teal-100 selection:text-teal-900">
+
+  <!-- AVISO PROMINENTE DE SEGURIDAD Y CONTEXTO ACADÉMICO -->
+  <aside aria-label="Aviso normativo y académico" class="bg-amber-500 text-slate-950 px-4 py-2 text-xs md:text-sm font-semibold border-b border-amber-600 flex items-center justify-between shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto w-full flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <svg class="w-4 h-4 shrink-0 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <span class="tracking-wide">SIMULACIÓN EDUCATIVA · NO TOMAR DECISIONES MÉDICAS NI CLÍNICAS REALES</span>
+      </div>
+      <div class="hidden sm:flex items-center gap-4 text-xs font-mono font-normal">
+        <span class="bg-black/10 px-2 py-0.5 rounded">Motor: SWI-Prolog v9.2</span>
+        <span class="bg-black/10 px-2 py-0.5 rounded">Instancia: Banco #44</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CABECERA EDITORIAL PRINCIPAL (Granate #631c33) -->
+  <header class="bg-maroon-900 text-white shadow-md border-b-4 border-teal-600">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded bg-teal-600 font-mono font-bold text-xs text-white">44</span>
+          <h1 class="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-white flex items-center gap-2">
+            Janus <span class="text-xs font-sans font-medium px-2 py-0.5 bg-maroon-800 text-teal-100 rounded border border-maroon-700/50">Gemelo Digital</span>
+          </h1>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl font-sans">
+          Simulador declarativo de trazabilidad, contingencias e inventario hemodinámico basado en inferencia lógica de primer orden.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3 self-start md:self-auto text-xs font-mono">
+        <div class="bg-maroon-950/70 border border-maroon-800/80 px-3 py-1.5 rounded-md flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full bg-teal-400 animate-pulse" aria-hidden="true"></span>
+          <span class="text-slate-300">API Prolog: <strong class="text-teal-300">Conectada (solo lectura)</strong></span>
+        </div>
+        <div class="bg-maroon-950/70 border border-maroon-800/80 px-3 py-1.5 rounded-md">
+          <span class="text-slate-300">Hora Base: <strong class="text-amber-400">t = 100</strong></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full space-y-8 flex-1">
+
+    <!-- HERO COMPACTO: PREGUNTAR AL GEMELO -->
+    <section aria-labelledby="hero-title" class="bg-white rounded-xl shadow-sm border border-slate-200/90 overflow-hidden">
+      <div class="p-5 sm:p-6 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-teal-700 bg-teal-50 border border-teal-200 text-xs px-2 py-0.5 rounded font-mono font-medium">Predicado: resolver_contingencia/3</span>
+              <span class="text-xs text-slate-400">Sin efectos colaterales en BD</span>
+            </div>
+            <h2 id="hero-title" class="text-xl sm:text-2xl font-serif font-bold text-slate-900 mt-1">Preguntar al gemelo</h2>
+            <p class="text-sm text-slate-600 mt-0.5">Evalúa alternativas de reasignación óptima para el estado actual (t = 100) según las reglas de compatibilidad estricta.</p>
+          </div>
+
+          <!-- SELECTOR DE SITUACIÓN Y ACCIÓN -->
+          <div class="flex flex-wrap sm:flex-nowrap items-center gap-3">
+            <div class="w-full sm:w-auto">
+              <label for="situacion-select" class="block text-xs font-semibold text-slate-600 mb-1">Situación activa</label>
+              <select id="situacion-select" class="w-full sm:w-64 bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-teal-600 focus:border-teal-600 p-2 font-mono">
+                <option value="s1">s1: Flujo estándar estable (t=100)</option>
+                <option value="s2" selected>s2: Concurrencia de cirugías (t=100)</option>
+                <option value="s3">s3: Retiro reactivo por prueba (t=102)</option>
+              </select>
+            </div>
+            <div class="w-full sm:w-auto self-end">
+              <button type="button" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors duration-150 focus-visible:outline-teal-600">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <span>Consultar decisión</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ÁREA DE PROPUESTA PREFERIDA Y ALTERNATIVAS -->
+      <div class="p-5 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 bg-slate-50/50">
+        <!-- Propuesta Preferida (Prolog Optima) -->
+        <article class="lg:col-span-7 bg-white rounded-lg border-2 border-teal-600 p-5 shadow-sm relative flex flex-col justify-between">
+          <div class="absolute -top-3 left-4 bg-teal-600 text-white text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded shadow-sm flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            Propuesta preferida del motor
+          </div>
+
+          <div class="mt-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-slate-500">Regla aplicada: <code class="text-teal-700 font-semibold">minimax_penuria/2</code></span>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Certeza: 1.0 (Sin heurísticas)</span>
+            </div>
+            <h3 class="text-lg font-serif font-bold text-slate-900 mt-2">Reasignación simétrica para preservación de O−</h3>
+            <p class="text-sm text-slate-700 mt-1 leading-relaxed">
+              Asignar <strong>2 unidades A+ (u-041, u-042)</strong> a Cirugía 1, reubicando la reserva de O− para mantener el stock mínimo crítico ante traumatismos potenciales en la siguiente ventana de 4 horas.
+            </p>
+
+            <div class="mt-4 bg-slate-50 border border-slate-200 rounded p-3 text-xs space-y-1.5 font-mono">
+              <div class="text-slate-600"><strong>Explicación inferencial:</strong></div>
+              <p class="text-slate-700">1. Cirugía 1 posee compatibilidad ABO compatible con A+ [isoaglutinina anti-B ausente].</p>
+              <p class="text-slate-700">2. El stock de O− se encuentra en 4 unidades utilizables (umbral de contingencia = 3).</p>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span>Impacto en reserva: <strong class="text-slate-800 font-mono">O− protegido (+2)</strong></span>
+            <span class="text-teal-700 font-medium">Recomendación no ejecutable directamente</span>
+          </div>
+        </article>
+
+        <!-- Alternativas con Explicación de Rechazo / Riesgo -->
+        <div class="lg:col-span-5 flex flex-col gap-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Alternativas descartadas por Prolog</h3>
+
+          <!-- Alternativa B -->
+          <article class="bg-white rounded-lg border border-slate-200 p-3.5 hover:border-slate-300 transition-colors text-xs">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-slate-800">Opción B: Despacho O− directo</span>
+              <span class="px-1.5 py-0.5 rounded text-[11px] font-mono bg-red-100 text-red-700 font-medium">Rechazo: Penuria O−</span>
+            </div>
+            <p class="text-slate-600">
+              Despacha las 2 unidades O− reservadas sin reubicación. Rechazada por infringir la meta de reserva para accidentes imprevistos.
+            </p>
+          </article>
+
+          <!-- Alternativa C -->
+          <article class="bg-white rounded-lg border border-amber-300 bg-amber-50/40 p-3.5 text-xs">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-amber-900">Opción C: Postergación de Cirugía 2</span>
+              <span class="px-1.5 py-0.5 rounded text-[11px] font-mono bg-amber-200 text-amber-800 font-medium">Incertidumbre: Requiere validación</span>
+            </div>
+            <p class="text-slate-700">
+              Retrasar Cirugía 2 a t=104 para aguardar cruce de laboratorio de lote entrante. Demora no contemplada en parámetros s2.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- INVENTARIO HEMODINÁMICO: 8 TARJETAS ABO/Rh -->
+    <section aria-labelledby="inventory-title" class="space-y-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-2">
+        <div>
+          <h2 id="inventory-title" class="text-xl font-serif font-bold text-slate-900">Inventario general de unidades utilizables</h2>
+          <p class="text-xs text-slate-500">Conteo estricto de hemoderivados disponibles en cámara principal. <span class="font-semibold text-slate-700">Excluye unidades reservadas o comprometidas.</span></p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-mono">
+          <span class="inline-flex items-center gap-1 text-slate-600">
+            <span class="w-2.5 h-2.5 rounded-full bg-teal-600"></span> Normal
+          </span>
+          <span class="inline-flex items-center gap-1 text-slate-600 ml-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Mínimo
+          </span>
+          <span class="inline-flex items-center gap-1 text-slate-600 ml-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-600"></span> Crítico
+          </span>
+        </div>
+      </div>
+
+      <!-- Grid de 8 tarjetas ABO/Rh -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+        <!-- O- (Crítico) -->
+        <div class="bg-white rounded-lg p-3.5 border-2 border-red-500 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-base font-bold font-mono text-red-700">O−</span>
+            <span class="text-[10px] font-mono px-1 rounded bg-red-100 text-red-800 font-semibold">Crítico</span>
+          </div>
+          <div class="mt-2 text-center">
+            <div class="text-2xl font-bold font-mono text-slate-900">4</div>
+            <div class="text-[11px] text-slate-500 font-medium">utilizables</div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-100 text-[10px] text-slate-400 font-mono text-center">
+            2 reservadas
+          </div>
+        </div>
+
+        <!-- O+ -->
+        <div class="bg-white rounded-lg p-3.5 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-base font-bold font-mono text-slate-800">O+</span>
+            <span class="text-[10px] font-mono px-1 rounded bg-slate-100 text-slate-600">OK</span>
+          </div>
+          <div class="mt-2 text-center">
+            <div class="text-2xl font-bold font-mono text-slate-900">18</div>
+            <div class="text-[11px] text-slate-500 font-medium">utilizables</div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-100 text-[10px] text-slate-400 font-mono text-center">
+            5 reservadas
+          </div>
+        </div>
+
+        <!-- A- -->
+        <div class="bg-white rounded-lg p-3.5 border border-amber-300 shadow-sm bg-amber-50/20 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-base font-bold font-mono text-amber-800">A−</span>
+            <span class="text-[10px] font-mono px-1 rounded bg-amber-100 text-amber-800 font-semibold">Bajo</span>
+          </div>
+          <div class="mt-2 text-center">
+            <div class="text-2xl font-bold font-mono text-slate-900">6</div>
+            <div class="text-[11px] text-slate-500 font-medium">utilizables</div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-100 text-[10px] text-slate-400 font-mono text-center">
+            1 reservada
+          </div>
+        </div>
+
+        <!-- A+ -->
+        <div class="bg-white rounded-lg p-3.5 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-base font-bold font-mono text-slate-800">A+</span>
+            <span class="text-[10px] font-mono px-1 rounded bg-teal-100 text-teal-800">Óptimo</span>
+          </div>
+          <div class="mt-2 text-center">
+            <div class="text-2xl font-bold font-mono text-slate-900">22</div>
+            <div class="text-[11px] text-slate-500 font-medium">utilizables</div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-100 text-[10px] text-slate-400 font-mono text-center">
+            4 reservadas
+          </div>
+        </div>
+
+        <!-- B- -->
+        <div class="bg-white rounded-lg p-3.5 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-base font-bold font-mono text-slate-800">B−</span>
+            <span class="text-[10px] font-mono px-1 rounded bg-slate-100 text-slate-600">OK</span>
+          </div>
+          <div class="mt-2 text-center">
+            <div class="text-2xl font-bold font-mono text-slate-900">5</div>
+            <div class="text-[11px] text-slate-500 font-medium">utilizables</div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-100 text-[10px] text-slate-400 font-mono text-center">
+            0 reservadas
+          </div>
+        </div>
+
+        <!-- B+ -->
+        <div class="bg-white rounded-lg p-3.5 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-base font-bold font-mono text-slate-800">B+</span>
+            <span class="text-[10px] font-mono px-1 rounded bg-slate-100 text-slate-600">OK</span>
+          </div>
+          <div class="mt-2 text-center">
+            <div class="text-2xl font-bold font-mono text-slate-900">11</div>
+            <div class="text-[11px] text-slate-500 font-medium">utilizables</div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-100 text-[10px] text-slate-400 font-mono text-center">
+            2 reservadas
+          </div>
+        </div>
+
+        <!-- AB- -->
+        <div class="bg-white rounded-lg p-3.5 border border-amber-300 shadow-sm bg-amber-50/20 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-base font-bold font-mono text-amber-800">AB−</span>
+            <span class="text-[10px] font-mono px-1 rounded bg-amber-100 text-amber-800 font-semibold">Bajo</span>
+          </div>
+          <div class="mt-2 text-center">
+            <div class="text-2xl font-bold font-mono text-slate-900">2</div>
+            <div class="text-[11px] text-slate-500 font-medium">utilizables</div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-100 text-[10px] text-slate-400 font-mono text-center">
+            1 reservada
+          </div>
+        </div>
+
+        <!-- AB+ -->
+        <div class="bg-white rounded-lg p-3.5 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-base font-bold font-mono text-slate-800">AB+</span>
+            <span class="text-[10px] font-mono px-1 rounded bg-slate-100 text-slate-600">OK</span>
+          </div>
+          <div class="mt-2 text-center">
+            <div class="text-2xl font-bold font-mono text-slate-900">8</div>
+            <div class="text-[11px] text-slate-500 font-medium">utilizables</div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-100 text-[10px] text-slate-400 font-mono text-center">
+            0 reservadas
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIONES DE ESCENARIOS / CONTINGENCIAS INDEPENDIENTES -->
+    <div class="space-y-6">
+
+      <!-- SECCIÓN 1: RESERVAS Y CIRUGÍAS · SITUACIÓN 2 -->
+      <section aria-labelledby="sec-cirugias-title" class="bg-white rounded-xl shadow-sm border border-slate-200/90 overflow-hidden">
+        <div class="bg-slate-50 px-5 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-teal-600" aria-hidden="true"></span>
+            <h3 id="sec-cirugias-title" class="font-serif font-bold text-lg text-slate-900">Reservas y cirugías · situación 2</h3>
+            <span class="text-xs font-mono text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded">Horario: t=100</span>
+          </div>
+          <span class="text-xs text-slate-500">Evaluación de coincidencia y desabastecimiento quirúrgico</span>
+        </div>
+
+        <div class="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Cirugía 1 -->
+          <article class="border border-slate-200 rounded-lg p-4 bg-white flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-bold text-sm text-slate-900 font-mono">cir1 · Cardíaca</span>
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-teal-100 text-teal-800">Reacomodable</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-normal">
+                Requerimiento inicial: 2 unidades O−. El resolvedor Prolog encuentra sustituto compatible isogrupal <strong>A+</strong> mediante switch seguro sin comprometer reserva.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-mono text-teal-700 bg-teal-50/50 p-2 rounded">
+              Prolog: reacomodar(cir1, [u_041, u_042]).
+            </div>
+          </article>
+
+          <!-- Cirugía 2 -->
+          <article class="border-2 border-red-300 rounded-lg p-4 bg-red-50/30 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-bold text-sm text-slate-900 font-mono">cir2 · Ortopedia mayor</span>
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-red-100 text-red-800">Sin cobertura</span>
+              </div>
+              <p class="text-xs text-slate-700 leading-normal">
+                Demanda: 3 unidades B−. El stock utilizable actual (5) está comprometido con reservas previas intransferibles de terapia intensiva. Déficit neto: <strong>-1 unidad</strong>.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-red-100 text-xs font-mono text-red-700 bg-red-100/50 p-2 rounded">
+              Fallo unificación: falta_stock(b_negativo, 1).
+            </div>
+          </article>
+
+          <!-- Cirugía 3 -->
+          <article class="border border-amber-300 rounded-lg p-4 bg-amber-50/30 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-bold text-sm text-slate-900 font-mono">cir3 · Programada matutina</span>
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-900">Liberación solo propuesta</span>
+              </div>
+              <p class="text-xs text-slate-700 leading-normal">
+                Reserva inmovilizada de 2 unidades O+. El paciente fue dado de alta preliminar, pero el protocolo estricto no ejecuta la liberación automática en BD; requiere visto bueno.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-amber-200 text-xs font-mono text-amber-800 bg-amber-100/50 p-2 rounded">
+              Acción: propuesta_liberar(cir3, o_positivo, 2).
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- SECCIÓN 2: PRUEBA POSITIVA TARDÍA · SITUACIÓN 3 -->
+      <section aria-labelledby="sec-tardia-title" class="bg-white rounded-xl shadow-sm border border-slate-200/90 overflow-hidden">
+        <div class="bg-slate-50 px-5 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-amber-500" aria-hidden="true"></span>
+            <h3 id="sec-tardia-title" class="font-serif font-bold text-lg text-slate-900">Prueba positiva tardía · situación 3</h3>
+            <span class="text-xs font-mono text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded">Horario independiente: t=102</span>
+          </div>
+          <span class="text-xs text-slate-500">Trazabilidad serológica retrospectiva y aislamiento de cadena</span>
+        </div>
+
+        <div class="p-5 space-y-5">
+          <!-- Cadena visual donante -> donación -> unidad -->
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Cadena de trazabilidad declarativa</h4>
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-3.5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs font-mono">
+              <div class="flex items-center gap-2 bg-white px-3 py-2 rounded border border-slate-200 shadow-sm w-full md:w-auto">
+                <span class="text-slate-400">1.</span>
+                <div>
+                  <div class="font-bold text-slate-800">Donante #D-8821</div>
+                  <div class="text-[11px] text-amber-700">Reactividad tardía (HBsAg)</div>
+                </div>
+              </div>
+
+              <div class="text-slate-400 hidden md:block">→</div>
+
+              <div class="flex items-center gap-2 bg-white px-3 py-2 rounded border border-slate-200 shadow-sm w-full md:w-auto">
+                <span class="text-slate-400">2.</span>
+                <div>
+                  <div class="font-bold text-slate-800">Donación #DON-4409</div>
+                  <div class="text-[11px] text-slate-500">Extracción t=48 (Aféresis)</div>
+                </div>
+              </div>
+
+              <div class="text-slate-400 hidden md:block">→</div>
+
+              <div class="flex items-center gap-2 bg-red-50 px-3 py-2 rounded border border-red-300 shadow-sm w-full md:w-auto">
+                <span class="text-red-500 font-bold">!</span>
+                <div>
+                  <div class="font-bold text-red-900">Unidad #U-9912 (A+)</div>
+                  <div class="text-[11px] text-red-700">Estado: Retiro inmediato</div>
+                </div>
+              </div>
+
+              <div class="text-slate-400 hidden md:block">→</div>
+
+              <div class="flex items-center gap-2 bg-amber-50 px-3 py-2 rounded border border-amber-300 shadow-sm w-full md:w-auto">
+                <span class="text-amber-600 font-bold">?</span>
+                <div>
+                  <div class="font-bold text-amber-900">Reserva Afectada #RES-12</div>
+                  <div class="text-[11px] text-amber-800">Asignada a Paciente #P-302</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Matriz de estado de acciones sugeridas por la lógica -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+            <!-- Retirar -->
+            <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+              <span class="font-bold text-red-900 block font-mono">1. Retirar / Bloquear</span>
+              <p class="text-red-700 mt-1">Unidad #U-9912 marcada para cuarentena física. Exclusión de inventario utilizable.</p>
+            </div>
+
+            <!-- Avisar -->
+            <div class="bg-teal-50 border border-teal-200 rounded-lg p-3">
+              <span class="font-bold text-teal-900 block font-mono">2. Avisar a servicio</span>
+              <p class="text-teal-700 mt-1">Notificación simulada enviada a Hemovigilancia y Unidad de Cirugía General.</p>
+            </div>
+
+            <!-- No se sabe -->
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <span class="font-bold text-amber-900 block font-mono">3. No se sabe (Incertidumbre)</span>
+              <p class="text-amber-800 mt-1">Fracción plaquetaria #PL-9912: falta confirmación de infusión en historial clínico.</p>
+            </div>
+
+            <!-- Reserva afectada -->
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+              <span class="font-bold text-slate-800 block font-mono">4. Reserva afectada</span>
+              <p class="text-slate-600 mt-1">Sustitución recomendada: unidad limpia A+ #U-9950 previa verificación de stock.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN 3: FALLA DE REFRIGERACIÓN · SITUACIÓN 4 -->
+      <section aria-labelledby="sec-refrig-title" class="bg-white rounded-xl shadow-sm border border-slate-200/90 overflow-hidden">
+        <div class="bg-slate-50 px-5 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-slate-700" aria-hidden="true"></span>
+            <h3 id="sec-refrig-title" class="font-serif font-bold text-lg text-slate-900">Falla de refrigeración · situación 4</h3>
+            <span class="text-xs font-mono text-slate-600 bg-white border border-slate-200 px-2 py-0.5 rounded">Ventana histórica: horas 92–102</span>
+          </div>
+          <span class="text-xs text-slate-500">Cámara frigorífica CF-03 · Sensor térmico T-1</span>
+        </div>
+
+        <div class="p-5 grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="lg:col-span-2 space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Clasificación ontológica de unidades en la cámara</h4>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <!-- Comprometida -->
+              <div class="bg-red-50 border border-red-200 rounded p-3">
+                <div class="flex items-center justify-between">
+                  <strong class="text-red-900">Comprometida</strong>
+                  <span class="font-mono font-bold text-red-700 bg-red-200/60 px-1.5 py-0.2 rounded">14 uds</span>
+                </div>
+                <p class="text-red-800 mt-1 text-[11px]">Bandeja superior (>6°C durante 180 min continuos según registro de sonda).</p>
+              </div>
+
+              <!-- No se sabe -->
+              <div class="bg-amber-50 border border-amber-200 rounded p-3">
+                <div class="flex items-center justify-between">
+                  <strong class="text-amber-900">No se sabe</strong>
+                  <span class="font-mono font-bold text-amber-800 bg-amber-200/60 px-1.5 py-0.2 rounded">8 uds</span>
+                </div>
+                <p class="text-amber-800 mt-1 text-[11px]">Bandeja intermedia: falta telemetría del sensor auxiliar en horas 95 a 98.</p>
+              </div>
+
+              <!-- Sin exposición -->
+              <div class="bg-teal-50 border border-teal-200 rounded p-3">
+                <div class="flex items-center justify-between">
+                  <strong class="text-teal-900">Sin exposición</strong>
+                  <span class="font-mono font-bold text-teal-800 bg-teal-200/60 px-1.5 py-0.2 rounded">30 uds</span>
+                </div>
+                <p class="text-teal-800 mt-1 text-[11px]">Cámara inferior sellada térmicamente, se mantuvo en rango estricto de 2°C a 4°C.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Equipo de respaldo hipotético -->
+          <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col justify-between text-xs">
+            <div>
+              <div class="flex items-center gap-1.5 text-slate-800 font-bold mb-1">
+                <svg class="w-4 h-4 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                Equipo de respaldo hipotético
+              </div>
+              <p class="text-slate-600 leading-normal">
+                Simulación de trasvase hacia refrigerador auxiliar <strong>RA-02</strong>. Capacidad modelada: 45 unidades.
+              </p>
+              <div class="mt-2 text-[11px] font-mono text-slate-500">
+                Estado: <span class="text-emerald-700 font-semibold">Espacio suficiente</span> para las 8 unidades dudosas y 14 comprometidas.
+              </div>
+            </div>
+            <div class="mt-3 pt-2 border-t border-slate-200 text-[11px] text-slate-400 italic">
+              * Ningún cambio físico realizado. Ejercicio de contingencia teórica.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN 4: ACCIDENTE · SITUACIÓN 5 -->
+      <section aria-labelledby="sec-accidente-title" class="bg-white rounded-xl shadow-sm border-2 border-red-200 overflow-hidden">
+        <div class="bg-red-50/70 px-5 py-4 border-b border-red-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-red-600 animate-pulse" aria-hidden="true"></span>
+            <h3 id="sec-accidente-title" class="font-serif font-bold text-lg text-red-950">Accidente vial múltiple · situación 5</h3>
+            <span class="text-xs font-mono text-red-800 bg-red-100 border border-red-300 px-2 py-0.5 rounded">Horario evento: t=94</span>
+          </div>
+          <div class="flex items-center gap-1.5 text-xs font-bold text-red-700 bg-white border border-red-200 px-2.5 py-1 rounded">
+            <span>ALERTA DE NIVEL CRÍTICO: O− EN PENURIA</span>
+          </div>
+        </div>
+
+        <div class="p-5 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+            <!-- Consumo ficticio de 2 O- -->
+            <div class="bg-white border border-slate-200 rounded p-3 shadow-sm">
+              <span class="font-mono text-slate-500 uppercase text-[10px] block">Consumo urgente</span>
+              <strong class="text-slate-900 text-sm">2 unidades O−</strong>
+              <p class="text-slate-600 mt-1">Transfusión de choque inmediata en Shock Room sin tipaje previo.</p>
+            </div>
+
+            <!-- Reparto s2 -->
+            <div class="bg-white border border-slate-200 rounded p-3 shadow-sm">
+              <span class="font-mono text-slate-500 uppercase text-[10px] block">Colisión con s2</span>
+              <strong class="text-slate-900 text-sm">Reparto forzado</strong>
+              <p class="text-slate-600 mt-1">Detrae las unidades O− que estaban asignadas en la propuesta preferida de cir1.</p>
+            </div>
+
+            <!-- s4 sin cobertura -->
+            <div class="bg-red-50 border border-red-200 rounded p-3 shadow-sm">
+              <span class="font-mono text-red-600 uppercase text-[10px] block">s4: Déficit total</span>
+              <strong class="text-red-900 text-sm">Sin cobertura</strong>
+              <p class="text-red-700 mt-1">Paciente politraumatizado 4 no alcanza cuota de concentrados hematíes O−.</p>
+            </div>
+
+            <!-- s3 tipo contradictorio -->
+            <div class="bg-amber-50 border border-amber-200 rounded p-3 shadow-sm">
+              <span class="font-mono text-amber-700 uppercase text-[10px] block">s3: Inconsistencia</span>
+              <strong class="text-amber-900 text-sm">Tipo contradictorio</strong>
+              <p class="text-amber-800 mt-1">Conflicto en prueba rápida de tarjeta vs serología previa en base Prolog.</p>
+            </div>
+          </div>
+
+          <!-- Barra de alerta y resumen de contingencia -->
+          <div class="bg-slate-900 text-slate-100 rounded-lg p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs font-mono">
+            <div class="flex items-center gap-2.5">
+              <span class="text-amber-400 font-bold">PROLOG ENGINE LOG:</span>
+              <span>alerta_critica(o_negativo, stock_remanente(2), umbral_minimo(5)).</span>
+            </div>
+            <span class="text-slate-400 bg-slate-800 px-2 py-1 rounded">No se ejecutan cambios reales en el banco #44</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- DEMOSTRACIÓN DE ESTADOS UI: CARGA Y ERROR DE API PROLOG -->
+      <section aria-labelledby="sec-estados-title" class="bg-white rounded-xl shadow-sm border border-slate-200/90 overflow-hidden">
+        <div class="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+          <h3 id="sec-estados-title" class="font-serif font-bold text-sm text-slate-700">Estados de interfaz (componentes para el frontend API Prolog)</h3>
+          <span class="text-xs text-slate-400 font-mono">loading / error states</span>
+        </div>
+        <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Estado Loading -->
+          <div class="border border-slate-200 rounded-lg p-4 bg-slate-50/50 flex items-center gap-3">
+            <svg class="animate-spin h-5 w-5 text-teal-600 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <div>
+              <div class="text-xs font-bold text-slate-800 font-mono">Estado: Evaluando predicados...</div>
+              <div class="text-xs text-slate-500">Unificando objetivos de compatibilidad en SWI-Prolog daemon.</div>
+            </div>
+          </div>
+
+          <!-- Estado Error -->
+          <div class="border border-red-200 rounded-lg p-4 bg-red-50/60 flex items-center gap-3">
+            <svg class="h-5 w-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <div class="text-xs font-bold text-red-900 font-mono">Error de consulta: prolog_timeout(4000ms)</div>
+              <div class="text-xs text-red-700">El modelo inferencial superó el tiempo de corte sin contradicciones lógicas.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- PIE EDITORIAL DE PÁGINA -->
+  <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-slate-500 text-xs font-mono">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-maroon-900"></span>
+        <span>Janus · Gemelo digital del banco de sangre #44 &copy; 2025</span>
+      </div>
+      <div>
+        <span>Simulador académico de Prolog · Datos ficticios · Arquitectura de solo lectura</span>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

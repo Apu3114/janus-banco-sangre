@@ -1,4 +1,4 @@
-# janus-banco-sangre — gemelo digital educativo (en desarrollo)
+# janus-banco-sangre — gemelo digital educativo
 
 Repositorio **independiente** de `erlang-proyectos`: no lee la API de Erlang,
 no escribe en DETS y no modifica la demo pública. La referencia de la tarea es
@@ -86,11 +86,20 @@ inventario utilizable en la situación 1 ni sustituyen una evaluación real.
 
 `servidor.pl` ofrece **API Prolog de solo lectura** y la página funcional
 [`/app`](web/index.html). La interfaz muestra inventario y decisiones desde
-la API, sin reglas de compatibilidad en JavaScript. Su diseño móvil inicial
-está descrito en [`design/PROMPT_STITCH.md`](design/PROMPT_STITCH.md); **todavía
-no es una exportación de Google Stitch**.
+la API, sin reglas de compatibilidad en JavaScript.
 
-- `GET /api/inventario`: existencias utilizables de glóbulos rojos por tipo.
+El diseño base se **generó realmente en Google Stitch** y se adaptó a la
+página funcional: proyecto privado
+[`9032971181814234071`](https://stitch.google.com/projects/9032971181814234071),
+pantalla `869263c325b6476797b7d0044ab1d904`. La captura y el HTML exportado
+están en [`design/stitch/`](design/stitch/), con las notas de
+[`design/PROMPT_STITCH.md`](design/PROMPT_STITCH.md). La adaptación conserva
+los tokens del diseño (granate `#631c33`, turquesa `#0d9488`, ámbar `#f59e0b`,
+canvas `#f4f6f7`, serif Newsreader, mono Fira Code), pero **no copia las cifras
+de la maqueta**: todos los datos, órdenes y explicaciones vienen de Prolog.
+
+- `GET /api/inventario`: hora lógica y existencias utilizables de glóbulos
+  rojos por tipo.
 - `GET /api/decidir?id=s1`: propuestas en orden y explicación de cada una.
 - `GET /api/decidir?id=s2`: reacomodo propuesto para la urgencia, sin escritura.
 - `GET /api/reservas`: `cir1` reacomodable, `cir2` sin cobertura y `cir3`
@@ -132,7 +141,8 @@ Ejemplos en el intérprete:
 Interfaz local: `swipl -q -s servidor.pl`, después `?- iniciar(8064).` y abre
 **`http://localhost:8064/app`** en tu navegador. La interfaz permite elegir
 una de las tres solicitudes de la foto base y consultar los otros escenarios
-en secciones independientes. También puedes
+en secciones independientes; cada tarjeta incluye la explicación y la
+evidencia enviadas por Prolog. También puedes
 consultar `curl 'http://localhost:8064/api/decidir?id=s1'`. Para detener
 el servidor: `?- detener.` **No publicarlo en Internet**: no tiene control
 de acceso y no está listo como aplicación web final.
@@ -154,9 +164,10 @@ archivo `salida/` está ignorado por Git.
    cinco ejemplos actuales son un subescenario explícito.
 4. Situación 5: ampliar a reparto de todos los tipos y a demanda variable;
    este ejercicio decide un único conflicto por O−.
-5. Pruebas plunit por situación, tres valores (sí/no/no se sabe) para todas las
-   decisiones, consultas contrafactuales («qué falta»), API restante y posible
-   adaptación de la interfaz a un diseño de Stitch.
+5. Ampliar las pruebas plunit a todos los tipos y a consultas contrafactuales
+   («qué falta»); hoy hay 44 pruebas, incluidas las cinco situaciones y la API.
+6. Validación médica real: el umbral crítico, el margen de liberación y los
+   rangos de temperatura son supuestos educativos, no protocolos.
 
 No existe sincronización con Erlang: esta fotografía no es el inventario vivo.
 El gemelo **no decide sobre plasma ni plaquetas**, aunque consten
