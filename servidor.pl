@@ -20,8 +20,9 @@
 
 % Servidor independiente del Cowboy/Erlang; endpoints de solo lectura.
 iniciar(Port) :-
-    % Sólo loopback: datos simulados y sin autenticación.
-    http_server(http_dispatch, [port(localhost:Port), workers(2)]),
+    % Escucha en todas las interfaces de la VM (acceso desde otras máquinas);
+    % datos simulados y sin autenticación.
+    http_server(http_dispatch, [port(Port), workers(2)]),
     assertz(puerto_servidor(Port)).
 detener :-
     retract(puerto_servidor(Port)),
