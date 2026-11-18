@@ -17,7 +17,12 @@ alternativas en orden y **una explicación legible para cada una**. Si hay dos
 fuentes de tipo incompatibles, destacar «no se sabe»; no mostrar unidad
 asignada. Aclarar que consultar no reserva ni entrega una unidad.
 
-Reservar espacio para situaciones 2–5 en futuras pantallas (reservas, retiro de
+Sección funcional para la situación 2: mostrar `cir1` (reacomodo de la reserva
+`u4` por `u11`), `cir2` (sin cobertura en esta fotografía) y `cir3` (propuesta
+de liberar `u9` tras confirmación explícita de no uso y margen **ficticio** de
+2 horas). Separar visualmente propuestas de acciones ejecutadas: ninguna
+reserva se mueve, y `u9` no se suma al inventario. La urgencia `s2` explica
+la propuesta de reacomodo. Reservar espacio para situaciones 3–5 (retiro de
 donante, refrigeradores y accidente), sin presentarlas como implementadas.
 Futuro: pestaña para trazabilidad donante → donación → unidad → paciente;
 estados confirmado/no/no se sabe; consulta «qué tendría que cambiar».

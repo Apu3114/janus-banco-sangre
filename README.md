@@ -9,7 +9,7 @@ lecturas son inventados para pruebas repetibles.
 
 ## Estado de la implementación
 
-**Primera iteración: situación 1 (tipo exacto agotado).** `hechos.pl` contiene
+**Situaciones 1 y 2 (simulación parcial).** `hechos.pl` contiene
 una fotografía fija de 30 unidades, 3 equipos y 6 pacientes. `reglas.pl`
 implementa compatibilidad ABO/Rh **solo para glóbulos rojos**, distingue
 disponible de reservada o vencida y expone `decide/3`, `situacion/3` y
@@ -17,6 +17,18 @@ disponible de reservada o vencida y expone `decide/3`, `situacion/3` y
 Prolog propone `u1` A− antes de `u2` O+ y `u3` O−. La explicación conserva
 O− para `s2`, paciente O− confirmado. `s3` tiene expediente y pulsera
 incompatibles: responde `no_se_sabe(tipo_paciente)`; no elige uno al azar.
+
+En la **situación 2**, la urgencia `s2` permite proponer el reacomodo de `u4`
+(reservada para `cir1`, pero vence en la hora 109 antes de su cirugía en 120)
+con `u11` (repuesto libre y vigente hasta 125). La cirugía `cir2` tiene una
+reserva que vence antes de comenzar y ningún repuesto en esta fotografía:
+se marca **sin cobertura**. `u3` permanece como alternativa libre para `s2`.
+Para `cir3`, terminada en la hora 95, se registró
+explícitamente en la hora 97 que `u9` no fue utilizada. Con `ahora(100)` y un
+**margen ficticio de liberación de 2 horas**, se propone liberarla. Ni esa
+propuesta ni el reacomodo cambian los hechos: `u9` sigue fuera del inventario
+utilizable hasta que exista un evento de liberación. Sin confirmación de no
+uso, la ausencia de transfusión no autoriza liberar una reserva.
 
 La prioridad de sustitución **es un supuesto educativo tomado del proyecto
 Erlang previo**: primero tipo exacto, después menor versatilidad y, dentro de
@@ -35,6 +47,9 @@ no es una exportación de Google Stitch**.
 
 - `GET /api/inventario`: existencias utilizables de glóbulos rojos por tipo.
 - `GET /api/decidir?id=s1`: propuestas en orden y explicación de cada una.
+- `GET /api/decidir?id=s2`: reacomodo propuesto para la urgencia, sin escritura.
+- `GET /api/reservas`: `cir1` reacomodable, `cir2` sin cobertura y `cir3`
+  liberable **solo como propuesta**, con explicaciones redactadas en Prolog.
 
 `grafico.pl` llama **desde Prolog** a `grafica_python.py` por Janus; Python
 únicamente dibuja el inventario calculado por Prolog. La gráfica es opcional:
@@ -55,7 +70,9 @@ Ejemplos en el intérprete:
 ```prolog
 ?- decide(s1, Decision, Explicacion).
 ?- decide(s3, Decision, Explicacion).
+?- decide(s2, Decision, Explicacion).
 ?- situacion(u4, utilizable, Evidencia). % falla: u4 está reservada
+?- situacion(u9, reserva_liberable(cir3), Evidencia).
 ?- existencias(globulos, o_neg, Numero).
 ```
 
@@ -75,14 +92,15 @@ archivo `salida/` está ignorado por Git.
 
 ## Pendiente (no afirmar como terminado)
 
-1. Situación 2: reasignación segura de reservas y urgencias, con horas de cirugía.
+1. Situación 2: ampliar casos de reasignación conjunta y cambios efectivos
+   documentados; hoy solo hay propuestas de lectura y una foto fija.
 2. Situación 3: trazabilidad de donaciones positivas y destinos desconocidos.
 3. Situación 4: exposición de unidades a lecturas fuera de rango y a huecos de datos.
 4. Situación 5: accidente, asignación conjunta y nivel crítico **solo de unidades utilizables**.
 5. Pruebas plunit por situación, tres valores (sí/no/no se sabe) para todas las
-   decisiones, consultas contrafactuales («qué falta»), API restante e interfaz
-   diseñada primero en Google Stitch. La UI no existe todavía.
+   decisiones, consultas contrafactuales («qué falta»), API restante y posible
+   adaptación de la interfaz a un diseño de Stitch.
 
 No existe sincronización con Erlang: esta fotografía no es el inventario vivo.
-La primera iteración **no decide sobre plasma ni plaquetas**, aunque consten
+El gemelo **no decide sobre plasma ni plaquetas**, aunque consten
 en la fotografía, porque sus reglas de compatibilidad difieren de las de rojos.

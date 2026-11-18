@@ -1,11 +1,13 @@
 :- module(hechos, [ahora/1, donacion/4, unidad/4, ubicacion/3, rango/3,
                    lectura/4, evento_unidad/3, prueba/3, tipo_registrado/3,
-                   solicitud/5, cirugia/5]).
+                   solicitud/5, cirugia/5, margen_liberacion/1]).
 
 % DATOS TOTALMENTE FICTICIOS. Instantes en horas del modelo, no reloj real.
 % Decisiones de simulación: 30 unidades, 3 equipos, 6 pacientes; caducidades
 % relativas. Una donación puede dar varios componentes (u1, u13, u22).
 ahora(100).
+% Supuesto educativo: esperar 2 horas después de confirmación de no uso.
+margen_liberacion(2).
 
 donacion(d1, dona_1, a_neg, 70).   donacion(d2, dona_2, o_pos, 70).
 donacion(d3, dona_3, o_neg, 70).   donacion(d4, dona_4, o_neg, 70).
@@ -64,6 +66,8 @@ evento_unidad(u27,liberada,85). evento_unidad(u28,liberada,85).
 evento_unidad(u29,liberada,85). evento_unidad(u30,liberada,85).
 evento_unidad(u4,reservada(cir1),95).
 evento_unidad(u8,reservada(cir2),96).
+evento_unidad(u9,reservada(cir3),91).
+evento_unidad(u9,cirugia_terminada_sin_uso(cir3),97).
 
 prueba(d1,negativa,80). prueba(d2,negativa,80).
 prueba(d3,negativa,80). prueba(d4,negativa,80).
@@ -84,4 +88,6 @@ solicitud(s1,p1,globulos,1,programada).
 solicitud(s2,p2,globulos,1,emergencia).
 solicitud(s3,p3,globulos,1,emergencia).
 cirugia(cir1,p4,120,globulos,1).
-cirugia(cir2,p5,122,globulos,1).
+% La reserva u8 es A+ y pertenece a p1; vence antes de su cirugía.
+cirugia(cir2,p1,122,globulos,1).
+cirugia(cir3,p4,95,globulos,1).

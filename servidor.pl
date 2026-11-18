@@ -11,6 +11,7 @@
 
 :- http_handler(root('api/inventario'), inventario_http, []).
 :- http_handler(root('api/decidir'), decision_http, []).
+:- http_handler(root('api/reservas'), reservas_http, []).
 :- http_handler(root(app), pagina_http, []).
 
 % Servidor independiente del Cowboy/Erlang; endpoints de solo lectura.
@@ -48,8 +49,31 @@ decision_http(Request) :-
     ; reply_json_dict(_{error:"Solicitud ficticia desconocida"}, [status(404)])
     ).
 
+reservas_http(_Request) :-
+    findall(_{cirugia:Nombre,estado:"reacomodable",unidad:Original,
+              repuesto:Repuesto,evidencia:Evidencia},
+            (reglas:situacion(C,reserva_reacomodable(U,R),Prueba),
+             atom_string(C,Nombre),atom_string(U,Original),
+             atom_string(R,Repuesto),maplist(explicacion_texto,Prueba,Evidencia)),
+            Reacomodables),
+    findall(_{cirugia:Nombre,estado:"sin_cobertura",evidencia:Evidencia},
+            (reglas:situacion(C,sin_cobertura,Prueba),
+             atom_string(C,Nombre),maplist(explicacion_texto,Prueba,Evidencia)),
+            SinCobertura),
+    findall(_{cirugia:Nombre,estado:"liberable",unidad:Unidad,
+              evidencia:Evidencia},
+            (reglas:situacion(U,reserva_liberable(C),Prueba),
+             atom_string(C,Nombre),atom_string(U,Unidad),
+             maplist(explicacion_texto,Prueba,Evidencia)),
+            Liberables),
+    append([Reacomodables,SinCobertura,Liberables],Cirugias),
+    reply_json_dict(_{cirugias:Cirugias,nota:"Propuestas; ninguna reserva se cambia"}).
+
 decision_json(asignar(U,Tipo), _{accion:"propuesta",unidad:Id,tipo:Nombre}) :-
     atom_string(U,Id), atom_string(Tipo,Nombre).
+decision_json(reacomodar(U,Cirugia,Repuesto),
+              _{accion:"reacomodo",unidad:Id,cirugia:C,repuesto:R}) :-
+    atom_string(U,Id),atom_string(Cirugia,C),atom_string(Repuesto,R).
 decision_json(no_se_sabe(tipo_paciente), _{accion:"no_se_sabe",motivo:"tipo_paciente"}).
 decision_json(sin_existencias, _{accion:"sin_existencias"}).
 
@@ -70,3 +94,23 @@ explicacion_texto(sin_registro(P),Texto) :-
     format(string(Texto),'No se sabe el tipo de ~w: no hay registro.',[P]).
 explicacion_texto(sin_unidad_compatible(T),Texto) :-
     format(string(Texto),'No hay unidad utilizable compatible con ~w.',[T]).
+explicacion_texto(urgencia_entrega(S,U,Caduca),Texto) :-
+    format(string(Texto),'La urgencia ~w podría recibir ~w: vence en la hora ~w.',[S,U,Caduca]).
+explicacion_texto(reserva_original_inutil(C,U,Caduca,Hora),Texto) :-
+    format(string(Texto),'La reserva ~w para ~w vence en ~w, antes de la cirugía en ~w.',
+           [U,C,Caduca,Hora]).
+explicacion_texto(cirugia_protegida(C,U,Caduca),Texto) :-
+    format(string(Texto),'La cirugía ~w conservaría cobertura con ~w, vigente hasta ~w.',
+           [C,U,Caduca]).
+explicacion_texto(reserva_inutil(U),Texto) :-
+    format(string(Texto),'La reserva ~w no seguirá vigente a la hora de la cirugía.',[U]).
+explicacion_texto(repuesto_para(C,U),Texto) :-
+    format(string(Texto),'La cirugía ~w puede reacomodarse con ~w.',[C,U]).
+explicacion_texto(sin_reemplazo(C),Texto) :-
+    format(string(Texto),'Con esta fotografía no hay repuesto libre para ~w.',[C]).
+explicacion_texto(no_utilizada_confirmada(C,Hora),Texto) :-
+    format(string(Texto),'Se confirmó que la reserva de ~w no se usó al terminar la cirugía en la hora ~w.',[C,Hora]).
+explicacion_texto(margen_de_liberacion(Margen),Texto) :-
+    format(string(Texto),'Ya transcurrió el margen ficticio de ~w horas tras la confirmación.',[Margen]).
+explicacion_texto(propuesta_liberar(U),Texto) :-
+    format(string(Texto),'Se puede proponer liberar ~w; sigue reservada hasta que se registre su liberación.',[U]).
