@@ -1,4 +1,6 @@
-:- module(reglas, [compatible/2, decide/3, situacion/3, existencias/3]).
+:- encoding(utf8).
+:- module(reglas, [compatible/2, decide/3, situacion/3, existencias/3,
+                   incidente/3]).
 
 :- use_module(hechos).
 :- use_module(library(lists)).
@@ -34,8 +36,45 @@ tipo_desconocido(Paciente,sin_registro(Paciente)) :-
 
 % El último evento explícito y la prueba del donante respaldan la oferta.
 ultimo_evento(U,Estado,Hora) :-
-    findall(H-E, (hechos:evento_unidad(U,E,H), hechos:ahora(A), H =< A), Pares),
+    hechos:ahora(A), ultimo_evento_hasta(U,A,Estado,Hora).
+
+ultimo_evento_hasta(U,A,Estado,Hora) :-
+    findall(H-E, (hechos:evento_unidad(U,E,H), H =< A), Pares),
     Pares \= [], keysort(Pares,Orden), last(Orden,Hora-Estado).
+
+% Situación 3: horizonte hipotético 102, distinto de la foto base (100).
+% Solo se inspeccionan las donaciones con resultado positivo documentado;
+% no se infiere contaminación de otras donaciones del mismo donante.
+cadena_positiva(U,Donante,D,Componente,HoraPositiva,Estado,HoraEstado) :-
+    hechos:hora_incidente(A),
+    hechos:unidad(U,D,Componente,_),
+    hechos:donacion(D,Donante,_,_),
+    hechos:prueba(D,positiva,HoraPositiva), HoraPositiva =< A,
+    ultimo_evento_hasta(U,A,Estado,HoraEstado).
+
+incidente(retirar,U,[cadena(Donante,D,U,Componente),
+                      prueba_positiva(D,HoraPositiva),
+                      estado_previo(Estado,HoraEstado)]) :-
+    cadena_positiva(U,Donante,D,Componente,HoraPositiva,Estado,HoraEstado),
+    memberchk(Estado,[liberada,reservada(_)]).
+
+incidente(avisar,Paciente,[cadena(Donante,D,U,Componente),
+                           prueba_positiva(D,HoraPositiva),
+                           transfundida_en(Hora),receptor_confirmado(Paciente)]) :-
+    cadena_positiva(U,Donante,D,Componente,HoraPositiva,transfundida,Hora),
+    hechos:receptor_unidad(U,Paciente,Hora).
+
+incidente(no_se_sabe,U,[cadena(Donante,D,U,Componente),
+                        prueba_positiva(D,HoraPositiva),
+                        transfundida_en(Hora),receptor_sin_registro]) :-
+    cadena_positiva(U,Donante,D,Componente,HoraPositiva,transfundida,Hora),
+    \+ hechos:receptor_unidad(U,_,Hora).
+
+incidente(reserva_afectada,Cirugia,[unidad_retirada(U),
+            reserva_sin_cobertura_confirmada(Cirugia)]) :-
+    incidente(retirar,U,_),
+    cadena_positiva(U,_,_,_,_,reservada(Cirugia),_),
+    hechos:cirugia(Cirugia,_,_,_,_).
 
 situacion(Paciente,tipo_paciente(no_se_sabe),[Motivo]) :-
     tipo_desconocido(Paciente,Motivo).

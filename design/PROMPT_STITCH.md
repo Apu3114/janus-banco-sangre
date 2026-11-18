@@ -22,8 +22,16 @@ Sección funcional para la situación 2: mostrar `cir1` (reacomodo de la reserva
 de liberar `u9` tras confirmación explícita de no uso y margen **ficticio** de
 2 horas). Separar visualmente propuestas de acciones ejecutadas: ninguna
 reserva se mueve, y `u9` no se suma al inventario. La urgencia `s2` explica
-la propuesta de reacomodo. Reservar espacio para situaciones 3–5 (retiro de
-donante, refrigeradores y accidente), sin presentarlas como implementadas.
+la propuesta de reacomodo.
+
+Sección funcional para la situación 3: separar visualmente la fotografía base
+en hora 100 de la vista prospectiva en hora 102. Mostrar cuatro grupos de
+resultados de Prolog: unidades a retirar, receptores a avisar, unidades
+transfundidas sin receptor conocido («no se sabe») y cirugías cuya reserva
+se ve afectada. Mostrar la cadena donante → donación → unidad y el evento
+que justifica cada respuesta. No presentar la propuesta como un retiro real.
+Reservar espacio para situaciones 4–5 (refrigeradores y accidente), sin
+presentarlas como implementadas.
 Futuro: pestaña para trazabilidad donante → donación → unidad → paciente;
 estados confirmado/no/no se sabe; consulta «qué tendría que cambiar».
 

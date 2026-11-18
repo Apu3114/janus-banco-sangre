@@ -45,7 +45,7 @@
   <header>
     <p class="sub">Programación lógica · SWI-Prolog</p>
     <h1>Gemelo digital del banco de sangre</h1>
-    <p class="sub">Fotografía ficticia · hora 100 del modelo · situaciones 1 y 2 en desarrollo</p>
+    <p class="sub">Fotografía ficticia · hora 100; incidente prospectivo en hora 102 del modelo</p>
   </header>
   <main>
     <p class="notice"><strong>Simulación educativa.</strong> No representa el inventario Erlang en vivo, no reserva unidades y no sirve para decisiones médicas.</p>
@@ -73,9 +73,14 @@
       <p class="muted">Prolog compara caducidades, busca repuestos y reconoce la confirmación de no uso tras una cirugía. El margen de liberación de 2 horas es ficticio. Solo propone: no libera ni mueve bolsas.</p>
       <div id="reservas" aria-live="polite">Cargando estado de reservas…</div>
     </section>
+    <section class="panel pending" aria-labelledby="incidente-titulo">
+      <h2 id="incidente-titulo">Prueba positiva tardía · situación 3</h2>
+      <p class="muted">Escenario ficticio en la hora 102, independiente de la fotografía base en hora 100. No ejecuta retiros ni avisos. La ausencia del receptor registrado no equivale a «no transfundida».</p>
+      <div id="incidente" aria-live="polite">Cargando trazabilidad…</div>
+    </section>
     <section class="panel pending">
       <h2>Próximos pasos</h2>
-      <p class="muted">Prueba positiva tardía · fallas de refrigeración · accidente. Estas situaciones aún no tienen decisiones implementadas.</p>
+      <p class="muted">Fallas de refrigeración y accidente: estas situaciones aún no tienen decisiones implementadas.</p>
     </section>
   </main>
   <footer>Los hechos, las reglas y las explicaciones se calculan en SWI-Prolog. Esta página solo presenta sus respuestas.</footer>
@@ -85,6 +90,7 @@
     const boton = document.getElementById('consultar');
     const solicitud = document.getElementById('solicitud');
     const reservas = document.getElementById('reservas');
+    const incidente = document.getElementById('incidente');
     async function pedir(url) {
       const r = await fetch(url, {headers: {'Accept': 'application/json'}});
       if (!r.ok) throw new Error('El gemelo no respondió (' + r.status + ').');
@@ -128,6 +134,37 @@
         }
       } catch (e) { reservas.textContent = e.message; }
     }
+    async function cargarIncidente() {
+      try {
+        const datos = await pedir('/api/incidente');
+        incidente.replaceChildren();
+        const grupos = [
+          ['Retirar', datos.retirar, 'unidad'],
+          ['Avisar', datos.avisar, 'paciente'],
+          ['No se sabe el receptor', datos.no_se_sabe, 'unidad'],
+          ['Reserva afectada', datos.reservas_afectadas, 'cirugia']
+        ];
+        for (const [nombre, filas, clave] of grupos) {
+          const titulo = document.createElement('h3');
+          titulo.textContent = nombre;
+          incidente.append(titulo);
+          for (const fila of filas) {
+            const card = document.createElement('article');
+            card.className = 'reservation' + (clave === 'cirugia' || nombre === 'No se sabe el receptor' ? ' uncertain' : '');
+            const encabezado = document.createElement('strong');
+            encabezado.textContent = fila[clave];
+            const lista = document.createElement('ul');
+            for (const texto of fila.explicacion) {
+              const li = document.createElement('li');
+              li.textContent = texto;
+              lista.append(li);
+            }
+            card.append(encabezado, lista);
+            incidente.append(card);
+          }
+        }
+      } catch (e) { incidente.textContent = e.message; }
+    }
     async function consultar() {
       boton.disabled = true;
       respuestas.textContent = 'Consultando a Prolog…';
@@ -158,6 +195,7 @@
     boton.addEventListener('click', consultar);
     cargarInventario();
     cargarReservas();
+    cargarIncidente();
     consultar();
   </script>
 </body>

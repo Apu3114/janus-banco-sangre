@@ -1,3 +1,4 @@
+:- encoding(utf8).
 :- begin_tests(interfaz_http).
 
 :- use_module('../servidor').
@@ -7,7 +8,8 @@
 pagina(Port,Ruta,Cuerpo) :-
     format(atom(Url),'http://127.0.0.1:~w/~w',[Port,Ruta]),
     setup_call_cleanup(http_open(Url,Stream,[]),
-                       read_string(Stream,_,Cuerpo),
+                       (set_stream(Stream,encoding(utf8)),
+                        read_string(Stream,_,Cuerpo)),
                        close(Stream)).
 
 test(pagina_e_inventario, [nondet]) :-
@@ -61,6 +63,21 @@ test(reserva_liberable_sin_sumarla_al_inventario, [nondet]) :-
           member(Fila,Existencias.inventario),
           Fila.tipo == "b_pos",
           Fila.disponibles == 0 ),
+        servidor:detener).
+
+test(incidente_trazado_y_destino_desconocido, [nondet]) :-
+    setup_call_cleanup(
+        servidor:iniciar(Port),
+        ( pagina(Port,'api/incidente',Respuesta),
+          atom_string(Json,Respuesta), atom_json_dict(Json,Datos,[]),
+          Datos.hora == 102,
+          findall(U,(member(F,Datos.retirar),U=F.unidad),Retirar),
+          Retirar == ["u1","u13"],
+          Datos.avisar = [Aviso], Aviso.paciente == "p5",
+          Datos.no_se_sabe = [Duda], Duda.unidad == "u12",
+          Datos.reservas_afectadas = [Reserva], Reserva.cirugia == "cir4",
+          member(Mensaje,Duda.explicacion),
+          sub_string(Mensaje,_,_,_,"no significa que no se transfundió") ),
         servidor:detener).
 
 :- end_tests(interfaz_http).

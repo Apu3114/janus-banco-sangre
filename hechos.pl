@@ -1,6 +1,8 @@
+:- encoding(utf8).
 :- module(hechos, [ahora/1, donacion/4, unidad/4, ubicacion/3, rango/3,
                    lectura/4, evento_unidad/3, prueba/3, tipo_registrado/3,
-                   solicitud/5, cirugia/5, margen_liberacion/1]).
+                   solicitud/5, cirugia/5, margen_liberacion/1,
+                   receptor_unidad/3, hora_incidente/1]).
 
 % DATOS TOTALMENTE FICTICIOS. Instantes en horas del modelo, no reloj real.
 % Decisiones de simulación: 30 unidades, 3 equipos, 6 pacientes; caducidades
@@ -8,6 +10,8 @@
 ahora(100).
 % Supuesto educativo: esperar 2 horas después de confirmación de no uso.
 margen_liberacion(2).
+% Situación 3: foto prospectiva en 102; no modifica las respuestas de hora 100.
+hora_incidente(102).
 
 donacion(d1, dona_1, a_neg, 70).   donacion(d2, dona_2, o_pos, 70).
 donacion(d3, dona_3, o_neg, 70).   donacion(d4, dona_4, o_neg, 70).
@@ -68,6 +72,12 @@ evento_unidad(u4,reservada(cir1),95).
 evento_unidad(u8,reservada(cir2),96).
 evento_unidad(u9,reservada(cir3),91).
 evento_unidad(u9,cirugia_terminada_sin_uso(cir3),97).
+% La donación d1 produjo u1/u13/u22. Se conocen tres destinos diferentes.
+evento_unidad(u13,reservada(cir4),99).
+evento_unidad(u22,transfundida,99).
+% d12 también tendrá resultado positivo; su bolsa salió sin receptor registrado.
+evento_unidad(u12,transfundida,99).
+receptor_unidad(u22,p5,99).
 
 prueba(d1,negativa,80). prueba(d2,negativa,80).
 prueba(d3,negativa,80). prueba(d4,negativa,80).
@@ -75,6 +85,7 @@ prueba(d5,negativa,80). prueba(d6,negativa,80).
 prueba(d7,negativa,80). prueba(d8,negativa,80).
 prueba(d9,negativa,80). prueba(d10,negativa,80).
 prueba(d11,negativa,80). prueba(d12,negativa,80).
+prueba(d1,positiva,101). prueba(d12,positiva,101).
 
 tipo_registrado(p1,expediente,a_pos).
 tipo_registrado(p2,expediente,o_neg).
@@ -91,3 +102,5 @@ cirugia(cir1,p4,120,globulos,1).
 % La reserva u8 es A+ y pertenece a p1; vence antes de su cirugía.
 cirugia(cir2,p1,122,globulos,1).
 cirugia(cir3,p4,95,globulos,1).
+% No se aplica compatibilidad de plasma en esta situación; solo trazabilidad.
+cirugia(cir4,p1,120,plasma,1).

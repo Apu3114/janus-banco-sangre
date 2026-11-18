@@ -7,9 +7,16 @@ y su [contexto técnico](https://github.com/tectijuana/logicfun-proyectos/blob/m
 **No usar para decisiones clínicas.** Todos los nombres, unidades, horas y
 lecturas son inventados para pruebas repetibles.
 
+**Relación con el repositorio del curso:** `logicfun-proyectos` aporta las cinco
+situaciones y los criterios de entrega de `gemelo/PROBLEMA.md`; este repositorio
+es la implementación independiente, no una copia ni un cambio al original.
+En el proyecto previo, **Erlang** simula las operaciones y transiciones del
+inventario; aquí **Prolog** relaciona hechos, explica propuestas y preserva
+la incertidumbre sin ejecutar entregas. La página solo presenta esas respuestas.
+
 ## Estado de la implementación
 
-**Situaciones 1 y 2 (simulación parcial).** `hechos.pl` contiene
+**Situaciones 1–3 (simulación parcial).** `hechos.pl` contiene
 una fotografía fija de 30 unidades, 3 equipos y 6 pacientes. `reglas.pl`
 implementa compatibilidad ABO/Rh **solo para glóbulos rojos**, distingue
 disponible de reservada o vencida y expone `decide/3`, `situacion/3` y
@@ -29,6 +36,18 @@ explícitamente en la hora 97 que `u9` no fue utilizada. Con `ahora(100)` y un
 propuesta ni el reacomodo cambian los hechos: `u9` sigue fuera del inventario
 utilizable hasta que exista un evento de liberación. Sin confirmación de no
 uso, la ausencia de transfusión no autoriza liberar una reserva.
+
+La **situación 3** usa una vista prospectiva ficticia en la **hora 102**:
+pruebas positivas tardías de `d1` y `d12` en la hora 101. `d1` produjo `u1`
+(libre), `u13` (plasma reservado para `cir4`) y `u22` (plaquetas transfundidas
+a `p5`): se propone retirar las dos primeras y avisar al receptor de la última.
+`u12` de `d12` figura como transfundida, pero **no existe registro de receptor**;
+la respuesta es «no se sabe», no «no se transfundió». `cir4` pierde su reserva;
+no se afirma que esté sin alternativas, pues aún no se implementa la
+compatibilidad ni la búsqueda de reemplazos de plasma. La trazabilidad se
+limita a las donaciones con prueba positiva documentada: **no** se extrapola
+a otras donaciones del mismo donante. El incidente no ejecuta retiros ni avisos
+y no altera las decisiones del inventario base en hora 100.
 
 La prioridad de sustitución **es un supuesto educativo tomado del proyecto
 Erlang previo**: primero tipo exacto, después menor versatilidad y, dentro de
@@ -50,6 +69,8 @@ no es una exportación de Google Stitch**.
 - `GET /api/decidir?id=s2`: reacomodo propuesto para la urgencia, sin escritura.
 - `GET /api/reservas`: `cir1` reacomodable, `cir2` sin cobertura y `cir3`
   liberable **solo como propuesta**, con explicaciones redactadas en Prolog.
+- `GET /api/incidente`: listas de retirar, avisar, no se sabe y reservas
+  afectadas en la hora 102, con cadena de evidencia y texto generado en Prolog.
 
 `grafico.pl` llama **desde Prolog** a `grafica_python.py` por Janus; Python
 únicamente dibuja el inventario calculado por Prolog. La gráfica es opcional:
@@ -73,6 +94,7 @@ Ejemplos en el intérprete:
 ?- decide(s2, Decision, Explicacion).
 ?- situacion(u4, utilizable, Evidencia). % falla: u4 está reservada
 ?- situacion(u9, reserva_liberable(cir3), Evidencia).
+?- incidente(no_se_sabe, Unidad, Evidencia).
 ?- existencias(globulos, o_neg, Numero).
 ```
 
@@ -94,7 +116,8 @@ archivo `salida/` está ignorado por Git.
 
 1. Situación 2: ampliar casos de reasignación conjunta y cambios efectivos
    documentados; hoy solo hay propuestas de lectura y una foto fija.
-2. Situación 3: trazabilidad de donaciones positivas y destinos desconocidos.
+2. Situación 3: ampliar la trazabilidad a múltiples donaciones y verificar
+   reemplazos de componentes distintos de glóbulos rojos.
 3. Situación 4: exposición de unidades a lecturas fuera de rango y a huecos de datos.
 4. Situación 5: accidente, asignación conjunta y nivel crítico **solo de unidades utilizables**.
 5. Pruebas plunit por situación, tres valores (sí/no/no se sabe) para todas las

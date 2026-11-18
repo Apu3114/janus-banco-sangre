@@ -1,3 +1,4 @@
+:- encoding(utf8).
 :- begin_tests(situacion_1).
 
 :- use_module('../reglas').
@@ -83,3 +84,31 @@ test(ninguna_otra_reserva_es_liberable, [true(Unidades == [u9])]) :-
     findall(U,situacion(U,reserva_liberable(_),_),Unidades).
 
 :- end_tests(situacion_2).
+
+:- begin_tests(situacion_3).
+:- use_module('../reglas').
+
+test(retirar_unidades_de_donacion_positiva, [true(Unidades == [u1,u13])]) :-
+    findall(U,incidente(retirar,U,_),Unidades).
+
+test(avisar_receptor_con_traza, [nondet]) :-
+    incidente(avisar,p5,Explicacion),
+    member(cadena(dona_1,d1,u22,plaquetas),Explicacion).
+
+test(destino_no_registrado_no_es_no_transfundida, [nondet]) :-
+    incidente(no_se_sabe,u12,Explicacion),
+    member(receptor_sin_registro,Explicacion),
+    \+ incidente(avisar,_,[cadena(_,_,u12,_)|_]).
+
+test(cirugia_pierde_reserva, [nondet]) :-
+    incidente(reserva_afectada,cir4,E),
+    member(unidad_retirada(u13),E).
+
+test(resultados_futuros_no_contaminan_foto_100, [nondet]) :-
+    situacion(u1,utilizable,_),
+    \+ situacion(u22,utilizable,_).
+
+test(no_se_extiende_a_donaciones_no_positivas, [fail]) :-
+    incidente(retirar,u2,_).
+
+:- end_tests(situacion_3).

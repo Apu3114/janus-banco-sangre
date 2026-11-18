@@ -1,3 +1,4 @@
+:- encoding(utf8).
 :- module(servidor, [iniciar/1, detener/0]).
 
 :- use_module(reglas).
@@ -12,6 +13,7 @@
 :- http_handler(root('api/inventario'), inventario_http, []).
 :- http_handler(root('api/decidir'), decision_http, []).
 :- http_handler(root('api/reservas'), reservas_http, []).
+:- http_handler(root('api/incidente'), incidente_http, []).
 :- http_handler(root(app), pagina_http, []).
 
 % Servidor independiente del Cowboy/Erlang; endpoints de solo lectura.
@@ -68,6 +70,48 @@ reservas_http(_Request) :-
             Liberables),
     append([Reacomodables,SinCobertura,Liberables],Cirugias),
     reply_json_dict(_{cirugias:Cirugias,nota:"Propuestas; ninguna reserva se cambia"}).
+
+incidente_http(_Request) :-
+    hechos:hora_incidente(Hora),
+    findall(_{unidad:Id,explicacion:Mensajes,evidencia:Pruebas},
+            (reglas:incidente(retirar,U,E),atom_string(U,Id),
+             maplist(incidente_texto,E,Mensajes),maplist(term_string,E,Pruebas)),
+            Retirar),
+    findall(_{paciente:Id,explicacion:Mensajes,evidencia:Pruebas},
+            (reglas:incidente(avisar,P,E),atom_string(P,Id),
+             maplist(incidente_texto,E,Mensajes),maplist(term_string,E,Pruebas)),
+            Avisar),
+    findall(_{unidad:Id,explicacion:Mensajes,evidencia:Pruebas},
+            (reglas:incidente(no_se_sabe,U,E),atom_string(U,Id),
+             maplist(incidente_texto,E,Mensajes),maplist(term_string,E,Pruebas)),
+            NoSeSabe),
+    findall(_{cirugia:Id,explicacion:Mensajes,evidencia:Pruebas},
+            (reglas:incidente(reserva_afectada,C,E),atom_string(C,Id),
+             maplist(incidente_texto,E,Mensajes),maplist(term_string,E,Pruebas)),
+            Reservas),
+    reply_json_dict(_{hora:Hora,retirar:Retirar,avisar:Avisar,
+                      no_se_sabe:NoSeSabe,reservas_afectadas:Reservas,
+                      nota:"Escenario ficticio prospectivo; no se ejecutan retiros ni avisos"}).
+
+incidente_texto(cadena(Donante,Donacion,U,Componente),Texto) :-
+    format(string(Texto),'Donante ~w → donación ~w → unidad ~w (~w).',
+           [Donante,Donacion,U,Componente]).
+incidente_texto(prueba_positiva(D,Hora),Texto) :-
+    format(string(Texto),'La prueba tardía de ~w dio positiva en la hora ~w.',[D,Hora]).
+incidente_texto(estado_previo(liberada,Hora),Texto) :-
+    format(string(Texto),'La unidad estaba liberada desde la hora ~w: se propone retirarla.',[Hora]).
+incidente_texto(estado_previo(reservada(C),Hora),Texto) :-
+    format(string(Texto),'La unidad estaba reservada para ~w desde la hora ~w: se propone retirarla.',[C,Hora]).
+incidente_texto(transfundida_en(Hora),Texto) :-
+    format(string(Texto),'La unidad se registró transfundida en la hora ~w.',[Hora]).
+incidente_texto(receptor_confirmado(P),Texto) :-
+    format(string(Texto),'El receptor registrado ~w debe ser avisado.',[P]).
+incidente_texto(receptor_sin_registro,
+               "No se sabe a quién avisar: falta el registro del receptor; no significa que no se transfundió.").
+incidente_texto(unidad_retirada(U),Texto) :-
+    format(string(Texto),'La unidad reservada ~w se propone retirar.',[U]).
+incidente_texto(reserva_sin_cobertura_confirmada(C),Texto) :-
+    format(string(Texto),'~w pierde su reserva; aún no se verificó un reemplazo de plasma.',[C]).
 
 decision_json(asignar(U,Tipo), _{accion:"propuesta",unidad:Id,tipo:Nombre}) :-
     atom_string(U,Id), atom_string(Tipo,Nombre).
