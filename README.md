@@ -16,12 +16,12 @@ la incertidumbre sin ejecutar entregas. La página solo presenta esas respuestas
 
 ## Estado de la implementación
 
-**Situaciones 1–3 (simulación parcial).** `hechos.pl` contiene
+**Cinco situaciones consultables (simulación parcial).** `hechos.pl` contiene
 una fotografía fija de 30 unidades, 3 equipos y 6 pacientes. `reglas.pl`
 implementa compatibilidad ABO/Rh **solo para glóbulos rojos**, distingue
 disponible de reservada o vencida y expone `decide/3`, `situacion/3` y
 `existencias/3`. La solicitud `s1` (A+) no tiene tipo exacto utilizable:
-Prolog propone `u1` A− antes de `u2` O+ y `u3` O−. La explicación conserva
+Prolog propone `u1` A− antes de `u2` O+, `u3` O− y `u6` O−. La explicación conserva
 O− para `s2`, paciente O− confirmado. `s3` tiene expediente y pulsera
 incompatibles: responde `no_se_sabe(tipo_paciente)`; no elige uno al azar.
 
@@ -29,7 +29,7 @@ En la **situación 2**, la urgencia `s2` permite proponer el reacomodo de `u4`
 (reservada para `cir1`, pero vence en la hora 109 antes de su cirugía en 120)
 con `u11` (repuesto libre y vigente hasta 125). La cirugía `cir2` tiene una
 reserva que vence antes de comenzar y ningún repuesto en esta fotografía:
-se marca **sin cobertura**. `u3` permanece como alternativa libre para `s2`.
+se marca **sin cobertura**. `u3` y `u6` permanecen como alternativas libres para `s2`.
 Para `cir3`, terminada en la hora 95, se registró
 explícitamente en la hora 97 que `u9` no fue utilizada. Con `ahora(100)` y un
 **margen ficticio de liberación de 2 horas**, se propone liberarla. Ni esa
@@ -49,14 +49,40 @@ limita a las donaciones con prueba positiva documentada: **no** se extrapola
 a otras donaciones del mismo donante. El incidente no ejecuta retiros ni avisos
 y no altera las decisiones del inventario base en hora 100.
 
+La **situación 4** es un escenario separado entre las horas 92 y 102. Un
+**equipo de respaldo hipotético adicional** (`e_respaldo`) permite mostrar un
+traslado seguro sin alterar los tres equipos de la fotografía base. Hay
+lecturas fuera del rango didáctico de glóbulos en `e_rojos` en 94 y 96;
+una lectura normal en 98 **no borra** la exposición. El hueco 98–102 supera
+el **máximo educativo de 2 horas entre lecturas**: una unidad que entra en
+99 responde `no_se_sabe` y debe evaluarse antes de usarla. Bajo el supuesto
+de muestreo discreto y tramos documentados, `u2` (trasladada en 93) y `u25`
+(plaquetas en su propio rango) figuran `salvada` **en este modelo**, no como
+certificación de seguridad clínica. No se inventa una duración clínica
+«tolerable» fuera de rango: cualquier muestra fuera del rango implica
+exposición y retiro propuesto. El equipo extra es una variación explícita
+del escenario, no una afirmación del enunciado de tres equipos.
+
+La **situación 5** es otra foto contrafactual en hora 94, anterior a la reserva
+de `u4`: **2 O− consumidas entre 30 unidades** (escala aproximada de 20 entre
+300). `u4` y `u6` se descuentan como consumo ficticio; queda `u3` utilizable.
+El umbral **educativo** de nivel crítico O− es *menos de 2 utilizables* antes
+del reparto. En el reparto conjunto, `s2` (O− confirmado) tiene prioridad y
+recibe `u3`; `s4` (sin tipificar) queda sin cobertura y `s3` (expediente y
+pulsera incompatibles) responde `no_se_sabe`, sin fingir un tipo confirmado.
+El desempate es la prioridad O− confirmado → sin tipificar, luego ID de
+solicitud; las unidades se ordenan por caducidad e ID y no se duplican.
+Es un supuesto de simulación, **no una política clínica**. No se mezclan las
+horas 94, 100 y 102 como si fueran una sola foto.
+
 La prioridad de sustitución **es un supuesto educativo tomado del proyecto
 Erlang previo**: primero tipo exacto, después menor versatilidad y, dentro de
 un tipo, FEFO. Desempate por nombre del tipo e ID. Que otra solicitud O−
 quede protegida es parte de esta fotografía, no una política médica.
 `ahora(100)` es una hora del modelo, no el reloj del sistema. El valor de
-caducidad se expresa en las mismas horas. La tabla de rangos de temperatura
-está en los hechos como preparación para la situación 4, **todavía no se usa
-para certificar que una unidad es segura**.
+caducidad se expresa en las mismas horas. Los rangos ficticios de temperatura
+se usan **solo** en la consulta aislada de la situación 4: no certifican
+inventario utilizable en la situación 1 ni sustituyen una evaluación real.
 
 `servidor.pl` ofrece **API Prolog de solo lectura** y la página funcional
 [`/app`](web/index.html). La interfaz muestra inventario y decisiones desde
@@ -71,6 +97,9 @@ no es una exportación de Google Stitch**.
   liberable **solo como propuesta**, con explicaciones redactadas en Prolog.
 - `GET /api/incidente`: listas de retirar, avisar, no se sabe y reservas
   afectadas en la hora 102, con cadena de evidencia y texto generado en Prolog.
+- `GET /api/falla`: exposición, dudas por huecos y tramos sin exposición
+  detectada; incluye evidencia y el supuesto del equipo auxiliar.
+- `GET /api/accidente`: consumo, reparto sin duplicación y alerta crítica.
 
 `grafico.pl` llama **desde Prolog** a `grafica_python.py` por Janus; Python
 únicamente dibuja el inventario calculado por Prolog. La gráfica es opcional:
@@ -95,12 +124,15 @@ Ejemplos en el intérprete:
 ?- situacion(u4, utilizable, Evidencia). % falla: u4 está reservada
 ?- situacion(u9, reserva_liberable(cir3), Evidencia).
 ?- incidente(no_se_sabe, Unidad, Evidencia).
+?- falla(u4, Estado, Evidencia).
+?- accidente(Decision, Evidencia).
 ?- existencias(globulos, o_neg, Numero).
 ```
 
 Interfaz local: `swipl -q -s servidor.pl`, después `?- iniciar(8064).` y abre
 **`http://localhost:8064/app`** en tu navegador. La interfaz permite elegir
-una de las tres solicitudes ficticias y explica la respuesta. También puedes
+una de las tres solicitudes de la foto base y consultar los otros escenarios
+en secciones independientes. También puedes
 consultar `curl 'http://localhost:8064/api/decidir?id=s1'`. Para detener
 el servidor: `?- detener.` **No publicarlo en Internet**: no tiene control
 de acceso y no está listo como aplicación web final.
@@ -118,8 +150,10 @@ archivo `salida/` está ignorado por Git.
    documentados; hoy solo hay propuestas de lectura y una foto fija.
 2. Situación 3: ampliar la trazabilidad a múltiples donaciones y verificar
    reemplazos de componentes distintos de glóbulos rojos.
-3. Situación 4: exposición de unidades a lecturas fuera de rango y a huecos de datos.
-4. Situación 5: accidente, asignación conjunta y nivel crítico **solo de unidades utilizables**.
+3. Situación 4: ampliar a traslados y lecturas de todo el inventario; los
+   cinco ejemplos actuales son un subescenario explícito.
+4. Situación 5: ampliar a reparto de todos los tipos y a demanda variable;
+   este ejercicio decide un único conflicto por O−.
 5. Pruebas plunit por situación, tres valores (sí/no/no se sabe) para todas las
    decisiones, consultas contrafactuales («qué falta»), API restante y posible
    adaptación de la interfaz a un diseño de Stitch.

@@ -1,6 +1,6 @@
 :- encoding(utf8).
 :- module(reglas, [compatible/2, decide/3, situacion/3, existencias/3,
-                   incidente/3]).
+                   incidente/3, falla/3, accidente/2]).
 
 :- use_module(hechos).
 :- use_module(library(lists)).
@@ -75,6 +75,108 @@ incidente(reserva_afectada,Cirugia,[unidad_retirada(U),
     incidente(retirar,U,_),
     cadena_positiva(U,_,_,_,_,reservada(Cirugia),_),
     hechos:cirugia(Cirugia,_,_,_,_).
+
+% Situación 4: una muestra fuera de rango basta para marcar exposición;
+% un hueco mayor de 2 horas impide afirmar que no hubo exposición.
+sensor(globulos,temp_globulos).
+sensor(plasma,temp_plasma).
+sensor(plaquetas,temp_plaquetas).
+
+muestra_fuera(U,E,H,Valor) :-
+    hechos:movimiento_falla(U,E,Desde,Hasta),
+    hechos:unidad(U,_,Componente,_), sensor(Componente,Sensor),
+    hechos:lectura_falla(E,Sensor,Valor,H),
+    Desde =< H, H < Hasta,
+    hechos:rango(Sensor,Min,Max), (Valor < Min ; Valor > Max).
+
+hueco_unidad(U,E,Primera,Segunda) :-
+    hechos:movimiento_falla(U,E,Desde,Hasta),
+    hechos:unidad(U,_,Componente,_), sensor(Componente,Sensor),
+    hechos:lectura_falla(E,Sensor,_,Primera),
+    hechos:lectura_falla(E,Sensor,_,Segunda),
+    Primera < Segunda, Segunda - Primera > 2,
+    \+ (hechos:lectura_falla(E,Sensor,_,Intermedia),
+        Primera < Intermedia, Intermedia < Segunda),
+    Desde < Segunda, Hasta > Primera.
+
+tramo_cubierto(U,E,Desde,Hasta) :-
+    hechos:movimiento_falla(U,E,Desde,Hasta),
+    hechos:unidad(U,_,Componente,_), sensor(Componente,Sensor),
+    hechos:lectura_falla(E,Sensor,_,Anterior),
+    Anterior =< Desde, Desde - Anterior =< 2,
+    \+ (hechos:lectura_falla(E,Sensor,_,MasCerca),
+        Anterior < MasCerca, MasCerca =< Desde),
+    hechos:lectura_falla(E,Sensor,_,Posterior),
+    Posterior >= Hasta, Posterior - Hasta =< 2,
+    \+ (hechos:lectura_falla(E,Sensor,_,MasCerca),
+        Hasta =< MasCerca, MasCerca < Posterior),
+    \+ hueco_unidad(U,E,_,_).
+
+falla(U,comprometida,[lectura_fuera_de_rango(E,H,Valor)]) :-
+    muestra_fuera(U,E,H,Valor).
+falla(U,no_se_sabe,[sin_lectura(E,Primera,Segunda)]) :-
+    hechos:movimiento_falla(U,_,_,_),
+    \+ muestra_fuera(U,_,_,_),
+    hueco_unidad(U,E,Primera,Segunda).
+falla(U,salvada,[tramos_monitorizados(Tramos)]) :-
+    hechos:movimiento_falla(U,_,_,_),
+    \+ muestra_fuera(U,_,_,_),
+    \+ hueco_unidad(U,_,_,_),
+    findall(E-Desde-Hasta,hechos:movimiento_falla(U,E,Desde,Hasta),Tramos),
+    Tramos \= [],
+    forall(member(E-Desde-Hasta,Tramos),tramo_cubierto(U,E,Desde,Hasta)).
+
+% Situación 5: foto contrafactual anterior a la reserva de u4.
+candidata_accidente(U,Tipo,Caduca) :-
+    hechos:hora_accidente(Hora),
+    hechos:unidad(U,D,globulos,Caduca), Caduca > Hora,
+    hechos:donacion(D,_,Tipo,_),
+    ultimo_evento_hasta(U,Hora,liberada,_),
+    hechos:ubicacion(U,_,Desde), Desde =< Hora,
+    hechos:prueba(D,negativa,Prueba), Prueba =< Hora,
+    \+ (hechos:prueba(D,positiva,Positiva),Positiva =< Hora).
+
+unidad_accidente(U,Tipo,Caduca) :-
+    candidata_accidente(U,Tipo,Caduca),
+    \+ hechos:consumo_accidente(U).
+
+consumo_valido :-
+    findall(U,hechos:consumo_accidente(U),Unidades),
+    sort(Unidades,Unicas), length(Unidades,N),length(Unicas,N),
+    forall(member(U,Unidades),candidata_accidente(U,o_neg,_)).
+
+solicitud_accidente(S,0,tipo_confirmado) :-
+    hechos:solicitud(S,P,globulos,1,emergencia),
+    tipo_paciente(P,o_neg,_).
+solicitud_accidente(S,1,sin_tipificar) :-
+    hechos:solicitud(S,P,globulos,1,emergencia),
+    tipo_desconocido(P,sin_registro(P)).
+
+reparto_accidente(Solicitudes,Unidades) :-
+    consumo_valido,
+    findall(P-S-M,solicitud_accidente(S,P,M),Pares),
+    keysort(Pares,Solicitudes),
+    findall(C-U,unidad_accidente(U,o_neg,C),Candidatas),
+    keysort(Candidatas,Unidades).
+
+accidente(asignar(S,U),[prioridad(Motivo),unidad_restante(U,Caduca)]) :-
+    reparto_accidente(Solicitudes,Unidades),
+    nth0(Pos,Solicitudes,_-S-Motivo),
+    nth0(Pos,Unidades,Caduca-U).
+accidente(sin_cobertura(S),[demanda_sin_unidad(S),unidades_agotadas]) :-
+    reparto_accidente(Solicitudes,Unidades),
+    nth0(Pos,Solicitudes,_-S-_),
+    length(Unidades,Disponibles), Pos >= Disponibles.
+accidente(no_se_sabe(S),[conflicto_de_fuentes(P)]) :-
+    hechos:solicitud(S,P,globulos,1,emergencia),
+    tipo_desconocido(P,conflicto_de_fuentes(P)).
+accidente(nivel_critico(o_neg),[restantes(N),umbral(Umbral),
+                                 consumidas(Consumidas)]) :-
+    consumo_valido,
+    hechos:umbral_critico(o_neg,Umbral),
+    findall(U,unidad_accidente(U,o_neg,_),Libres),length(Libres,N),
+    N < Umbral,
+    findall(U,hechos:consumo_accidente(U),Consumidas).
 
 situacion(Paciente,tipo_paciente(no_se_sabe),[Motivo]) :-
     tipo_desconocido(Paciente,Motivo).

@@ -80,4 +80,32 @@ test(incidente_trazado_y_destino_desconocido, [nondet]) :-
           sub_string(Mensaje,_,_,_,"no significa que no se transfundió") ),
         servidor:detener).
 
+test(temperatura_tres_estados, [nondet]) :-
+    setup_call_cleanup(servidor:iniciar(Port),
+        ( pagina(Port,'api/falla',Respuesta),atom_string(Json,Respuesta),
+          atom_json_dict(Json,Datos,[]),
+          Datos.max_hueco_horas == 2,
+          member(R1,Datos.resultados),R1.unidad == "u1",R1.estado == "comprometida",
+          member(R2,Datos.resultados),R2.unidad == "u4",R2.estado == "no_se_sabe",
+          member(R3,Datos.resultados),R3.unidad == "u2",R3.estado == "salvada" ),
+        servidor:detener).
+
+test(accidente_critico_y_reparto, [nondet]) :-
+    setup_call_cleanup(servidor:iniciar(Port),
+        ( pagina(Port,'api/accidente',Respuesta),atom_string(Json,Respuesta),
+          atom_json_dict(Json,Datos,[]),Datos.hora == 94,
+          member(Asignacion,Datos.decisiones),
+          Asignacion.decision.accion == "asignar",
+          Asignacion.decision.solicitud == "s2",
+          Asignacion.decision.unidad == "u3",
+          member(SinCobertura,Datos.decisiones),
+          SinCobertura.decision.accion == "sin_cobertura",
+          SinCobertura.decision.solicitud == "s4",
+          member(Critico,Datos.decisiones),
+          Critico.decision.accion == "nivel_critico",
+          member(Duda,Datos.decisiones),
+          Duda.decision.accion == "no_se_sabe",
+          Duda.decision.solicitud == "s3" ),
+        servidor:detener).
+
 :- end_tests(interfaz_http).

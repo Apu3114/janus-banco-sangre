@@ -30,8 +30,15 @@ resultados de Prolog: unidades a retirar, receptores a avisar, unidades
 transfundidas sin receptor conocido («no se sabe») y cirugías cuya reserva
 se ve afectada. Mostrar la cadena donante → donación → unidad y el evento
 que justifica cada respuesta. No presentar la propuesta como un retiro real.
-Reservar espacio para situaciones 4–5 (refrigeradores y accidente), sin
-presentarlas como implementadas.
+Incluir secciones funcionales para situaciones 4 y 5, **sin mezclarlas con la
+foto base**: falla con exposición confirmada, duda por hueco de lecturas mayor
+de 2 horas y unidades sin exposición detectada bajo los supuestos declarados;
+equipo de respaldo hipotético del subescenario. Accidente contrafactual en
+hora 94: 2 O− consumidas, 1 restante, asignación única a `s2`, `s4` sin
+cobertura, `s3` con fuentes de tipo contradictorias y alerta de nivel crítico.
+Cada tarjeta debe mostrar evidencia y explicación enviada por Prolog. Ninguna
+decisión se ejecuta; no mezclar los relojes 94, 100 y 102. Mostrar claramente
+que la validación médica y la interfaz exportada de Stitch **no existen** aún.
 Futuro: pestaña para trazabilidad donante → donación → unidad → paciente;
 estados confirmado/no/no se sabe; consulta «qué tendría que cambiar».
 

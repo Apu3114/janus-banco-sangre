@@ -2,7 +2,9 @@
 :- module(hechos, [ahora/1, donacion/4, unidad/4, ubicacion/3, rango/3,
                    lectura/4, evento_unidad/3, prueba/3, tipo_registrado/3,
                    solicitud/5, cirugia/5, margen_liberacion/1,
-                   receptor_unidad/3, hora_incidente/1]).
+                   receptor_unidad/3, hora_incidente/1,
+                   ventana_falla/2, movimiento_falla/4, lectura_falla/4,
+                   hora_accidente/1, consumo_accidente/1, umbral_critico/2]).
 
 % DATOS TOTALMENTE FICTICIOS. Instantes en horas del modelo, no reloj real.
 % Decisiones de simulación: 30 unidades, 3 equipos, 6 pacientes; caducidades
@@ -15,7 +17,7 @@ hora_incidente(102).
 
 donacion(d1, dona_1, a_neg, 70).   donacion(d2, dona_2, o_pos, 70).
 donacion(d3, dona_3, o_neg, 70).   donacion(d4, dona_4, o_neg, 70).
-donacion(d5, dona_5, a_pos, 70).   donacion(d6, dona_6, b_neg, 70).
+donacion(d5, dona_5, a_pos, 70).   donacion(d6, dona_6, o_neg, 70).
 donacion(d7, dona_7, ab_pos, 70). donacion(d8, dona_8, a_pos, 70).
 donacion(d9, dona_9, b_pos, 70).  donacion(d10, dona_10, ab_neg, 70).
 donacion(d11, dona_11, b_neg, 70). donacion(d12, dona_12, ab_pos, 70).
@@ -98,9 +100,46 @@ tipo_registrado(p5,expediente,a_neg).
 solicitud(s1,p1,globulos,1,programada).
 solicitud(s2,p2,globulos,1,emergencia).
 solicitud(s3,p3,globulos,1,emergencia).
+solicitud(s4,p6,globulos,1,emergencia). % sin tipificar; uso en accidente
 cirugia(cir1,p4,120,globulos,1).
 % La reserva u8 es A+ y pertenece a p1; vence antes de su cirugía.
 cirugia(cir2,p1,122,globulos,1).
 cirugia(cir3,p4,95,globulos,1).
 % No se aplica compatibilidad de plasma en esta situación; solo trazabilidad.
 cirugia(cir4,p1,120,plasma,1).
+
+% Situación 4: escenario aislado, ventana 92..102. Equipo de respaldo
+% hipotético adicional, ver README. Hueco de 4 horas en e_rojos (98..102).
+ventana_falla(92,102).
+movimiento_falla(u1,e_rojos,92,102).
+movimiento_falla(u2,e_rojos,92,93).
+movimiento_falla(u2,e_respaldo,93,102).
+movimiento_falla(u3,e_respaldo,92,95).
+movimiento_falla(u3,e_rojos,95,102).
+movimiento_falla(u4,e_respaldo,92,99).
+movimiento_falla(u4,e_rojos,99,102).
+movimiento_falla(u25,e_plaquetas,92,102).
+lectura_falla(e_rojos,temp_globulos,4,92).
+lectura_falla(e_rojos,temp_globulos,9,94).
+lectura_falla(e_rojos,temp_globulos,9,96).
+lectura_falla(e_rojos,temp_globulos,4,98).
+lectura_falla(e_rojos,temp_globulos,4,102).
+lectura_falla(e_respaldo,temp_globulos,4,92).
+lectura_falla(e_respaldo,temp_globulos,4,94).
+lectura_falla(e_respaldo,temp_globulos,4,96).
+lectura_falla(e_respaldo,temp_globulos,4,98).
+lectura_falla(e_respaldo,temp_globulos,4,100).
+lectura_falla(e_respaldo,temp_globulos,4,102).
+lectura_falla(e_plaquetas,temp_plaquetas,22,92).
+lectura_falla(e_plaquetas,temp_plaquetas,22,94).
+lectura_falla(e_plaquetas,temp_plaquetas,22,96).
+lectura_falla(e_plaquetas,temp_plaquetas,22,98).
+lectura_falla(e_plaquetas,temp_plaquetas,22,100).
+lectura_falla(e_plaquetas,temp_plaquetas,22,102).
+
+% Situación 5: foto contrafactual en 94, antes de la reserva de u4.
+% Consumo escalado: 2 unidades O- de las 30, en vez de 20 de 300.
+hora_accidente(94).
+consumo_accidente(u4).
+consumo_accidente(u6).
+umbral_critico(o_neg,2).

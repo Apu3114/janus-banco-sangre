@@ -14,6 +14,8 @@
 :- http_handler(root('api/decidir'), decision_http, []).
 :- http_handler(root('api/reservas'), reservas_http, []).
 :- http_handler(root('api/incidente'), incidente_http, []).
+:- http_handler(root('api/falla'), falla_http, []).
+:- http_handler(root('api/accidente'), accidente_http, []).
 :- http_handler(root(app), pagina_http, []).
 
 % Servidor independiente del Cowboy/Erlang; endpoints de solo lectura.
@@ -112,6 +114,77 @@ incidente_texto(unidad_retirada(U),Texto) :-
     format(string(Texto),'La unidad reservada ~w se propone retirar.',[U]).
 incidente_texto(reserva_sin_cobertura_confirmada(C),Texto) :-
     format(string(Texto),'~w pierde su reserva; aún no se verificó un reemplazo de plasma.',[C]).
+
+falla_http(_Request) :-
+    hechos:ventana_falla(Inicio,Fin),
+    findall(U,hechos:movimiento_falla(U,_,_,_),Todos),sort(Todos,Unidades),
+    findall(_{unidad:Id,estado:EstadoTexto,titulo:Titulo,
+              explicacion:Mensajes,evidencia:Pruebas},
+            (member(U,Unidades),
+             member(Estado,[comprometida,no_se_sabe,salvada]),
+             once(reglas:falla(U,Estado,Evidencia)),
+             atom_string(U,Id),atom_string(Estado,EstadoTexto),
+             falla_titulo(U,Estado,Titulo),
+             maplist(falla_texto,Evidencia,Mensajes),
+             maplist(term_string,Evidencia,Pruebas)),
+            Resultados),
+    reply_json_dict(_{inicio:Inicio,fin:Fin,max_hueco_horas:2,
+                      resultados:Resultados,nota:"Escenario ficticio con respaldo hipotético; ninguna unidad cambia de estado"}).
+
+falla_titulo(U,comprometida,Texto) :-
+    format(string(Texto),'~w · exposición confirmada (retiro propuesto)',[U]).
+falla_titulo(U,no_se_sabe,Texto) :-
+    format(string(Texto),'~w · no se sabe (evaluar / cuarentena propuesta)',[U]).
+falla_titulo(U,salvada,Texto) :-
+    format(string(Texto),'~w · sin exposición detectada en el modelo',[U]).
+
+falla_texto(lectura_fuera_de_rango(E,Hora,Valor),Texto) :-
+    format(string(Texto),'Expuesta en ~w a la lectura ~w en hora ~w, fuera del rango de su componente.',[E,Valor,Hora]).
+falla_texto(sin_lectura(E,Inicio,Fin),Texto) :-
+    format(string(Texto),'No se sabe la temperatura de ~w entre las horas ~w y ~w: supera el hueco tolerado de 2 horas.',[E,Inicio,Fin]).
+falla_texto(tramos_monitorizados(Tramos),Texto) :-
+    format(string(Texto),'Tramos con lecturas dentro de rango y sin huecos mayores de 2 horas: ~w.',[Tramos]).
+
+accidente_http(_Request) :-
+    hechos:hora_accidente(Hora),
+    findall(_{decision:Json,explicacion:Mensajes,evidencia:Pruebas},
+            (reglas:accidente(Decision,Evidencia),
+             accidente_json(Decision,Json),
+             maplist(accidente_texto,Evidencia,Mensajes),
+             maplist(term_string,Evidencia,Pruebas)),
+            Decisiones),
+    reply_json_dict(_{hora:Hora,decisiones:Decisiones,
+                      nota:"Accidente ficticio anterior a la reserva de u4; propuestas sin escritura"}).
+
+accidente_json(asignar(S,U),_{accion:"asignar",solicitud:Solicitud,
+                               unidad:Unidad,titulo:Titulo}) :-
+    atom_string(S,Solicitud),atom_string(U,Unidad),
+    format(string(Titulo),'Asignación propuesta · ~w → ~w',[S,U]).
+accidente_json(sin_cobertura(S),_{accion:"sin_cobertura",solicitud:Solicitud,
+                                     titulo:Titulo}) :-
+    atom_string(S,Solicitud),format(string(Titulo),'Sin cobertura · ~w',[S]).
+accidente_json(no_se_sabe(S),_{accion:"no_se_sabe",solicitud:Solicitud,
+                                  titulo:Titulo}) :-
+    atom_string(S,Solicitud),format(string(Titulo),'No se sabe el tipo · ~w',[S]).
+accidente_json(nivel_critico(T),_{accion:"nivel_critico",tipo:Tipo,
+                                     titulo:Titulo}) :-
+    atom_string(T,Tipo),format(string(Titulo),'Nivel crítico · ~w',[T]).
+
+accidente_texto(prioridad(tipo_confirmado),"Prioridad ficticia: tipo O negativo confirmado antes que paciente sin tipificar.").
+accidente_texto(prioridad(sin_tipificar),"Sin tipificar: solo se considera O negativo en este escenario.").
+accidente_texto(unidad_restante(U,C),Texto) :-
+    format(string(Texto),'La unidad utilizable ~w vence en hora ~w y no se asigna dos veces.',[U,C]).
+accidente_texto(demanda_sin_unidad(S),Texto) :-
+    format(string(Texto),'La solicitud ~w queda sin unidad en este reparto.',[S]).
+accidente_texto(unidades_agotadas,"Las unidades O negativo restantes se asignaron a solicitudes anteriores.").
+accidente_texto(conflicto_de_fuentes(P),Texto) :-
+    format(string(Texto),'No se sabe el tipo de ~w: expediente y pulsera discrepan; no se le asigna unidad.',[P]).
+accidente_texto(restantes(N),Texto) :-
+    format(string(Texto),'Quedan ~w unidades O negativo utilizables tras el consumo simulado, antes del reparto.',[N]).
+accidente_texto(umbral(U),Texto) :-
+    format(string(Texto),'Umbral crítico educativo: menos de ~w unidades.',[U]).
+accidente_texto(consumidas(Us),Texto) :-
+    format(string(Texto),'El accidente consume las unidades ficticias ~w.',[Us]).
 
 decision_json(asignar(U,Tipo), _{accion:"propuesta",unidad:Id,tipo:Nombre}) :-
     atom_string(U,Id), atom_string(Tipo,Nombre).

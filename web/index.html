@@ -78,9 +78,19 @@
       <p class="muted">Escenario ficticio en la hora 102, independiente de la fotografía base en hora 100. No ejecuta retiros ni avisos. La ausencia del receptor registrado no equivale a «no transfundida».</p>
       <div id="incidente" aria-live="polite">Cargando trazabilidad…</div>
     </section>
+    <section class="panel pending" aria-labelledby="falla-titulo">
+      <h2 id="falla-titulo">Falla de refrigeración · situación 4</h2>
+      <p class="muted">Escenario aparte (horas 92–102) con equipo de respaldo hipotético. Lectura fuera de rango: exposición; hueco mayor de 2 horas: no se sabe. Ni una lectura final normal ni un hueco prueban seguridad.</p>
+      <div id="falla" aria-live="polite">Cargando exposición…</div>
+    </section>
+    <section class="panel pending" aria-labelledby="accidente-titulo">
+      <h2 id="accidente-titulo">Accidente y reparto · situación 5</h2>
+      <p class="muted">Escenario alternativo en hora 94, anterior a las reservas. El accidente consume 2 unidades O− ficticias; el umbral crítico educativo es menos de 2. Ninguna asignación se ejecuta.</p>
+      <div id="accidente" aria-live="polite">Cargando reparto…</div>
+    </section>
     <section class="panel pending">
-      <h2>Próximos pasos</h2>
-      <p class="muted">Fallas de refrigeración y accidente: estas situaciones aún no tienen decisiones implementadas.</p>
+      <h2>Alcance del prototipo</h2>
+      <p class="muted">Cinco situaciones ficticias consultables; faltan validación clínica, ejecución de transiciones reales y una exportación de Google Stitch. Esta interfaz se implementó a mano.</p>
     </section>
   </main>
   <footer>Los hechos, las reglas y las explicaciones se calculan en SWI-Prolog. Esta página solo presenta sus respuestas.</footer>
@@ -91,6 +101,8 @@
     const solicitud = document.getElementById('solicitud');
     const reservas = document.getElementById('reservas');
     const incidente = document.getElementById('incidente');
+    const falla = document.getElementById('falla');
+    const accidente = document.getElementById('accidente');
     async function pedir(url) {
       const r = await fetch(url, {headers: {'Accept': 'application/json'}});
       if (!r.ok) throw new Error('El gemelo no respondió (' + r.status + ').');
@@ -165,6 +177,41 @@
         }
       } catch (e) { incidente.textContent = e.message; }
     }
+    function tarjetaExplicacion(contenedor, tituloTexto, mensajes, alerta) {
+      const card = document.createElement('article');
+      card.className = 'reservation' + (alerta ? ' uncertain' : '');
+      const titulo = document.createElement('strong');
+      titulo.textContent = tituloTexto;
+      const lista = document.createElement('ul');
+      for (const mensaje of mensajes) {
+        const li = document.createElement('li');
+        li.textContent = mensaje;
+        lista.append(li);
+      }
+      card.append(titulo, lista);
+      contenedor.append(card);
+    }
+    async function cargarFalla() {
+      try {
+        const datos = await pedir('/api/falla');
+        falla.replaceChildren();
+        for (const fila of datos.resultados) {
+          tarjetaExplicacion(falla, fila.titulo,
+            fila.explicacion, fila.estado !== 'salvada');
+        }
+      } catch (e) { falla.textContent = e.message; }
+    }
+    async function cargarAccidente() {
+      try {
+        const datos = await pedir('/api/accidente');
+        accidente.replaceChildren();
+        for (const fila of datos.decisiones) {
+          const d = fila.decision;
+          tarjetaExplicacion(accidente, d.titulo, fila.explicacion,
+            d.accion !== 'asignar');
+        }
+      } catch (e) { accidente.textContent = e.message; }
+    }
     async function consultar() {
       boton.disabled = true;
       respuestas.textContent = 'Consultando a Prolog…';
@@ -196,6 +243,8 @@
     cargarInventario();
     cargarReservas();
     cargarIncidente();
+    cargarFalla();
+    cargarAccidente();
     consultar();
   </script>
 </body>

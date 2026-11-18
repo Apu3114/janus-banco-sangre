@@ -29,7 +29,7 @@ test(o_negativo_recibe_reacomodo, [nondet]) :-
 
 test(alternativas_en_orden) :-
     findall(U, decide(s1, asignar(U,_), _), Us),
-    Us = [u1,u2,u3].
+    Us = [u1,u2,u3,u6].
 
 test(reservada_no_se_oferta, [fail]) :- situacion(u4,utilizable,_).
 test(caducada_no_se_oferta, [fail]) :- situacion(u5,utilizable,_).
@@ -63,7 +63,7 @@ test(urgencia_prefiere_unidad_que_vence_antes, [nondet]) :-
     member(cirugia_protegida(cir1,u11,125),E).
 
 test(urgencia_conserva_alternativa_libre, [true(Decisiones ==
-     [reacomodar(u4,cir1,u11),asignar(u3,o_neg)])]) :-
+     [reacomodar(u4,cir1,u11),asignar(u3,o_neg),asignar(u6,o_neg)])]) :-
     findall(D,decide(s2,D,_),Decisiones).
 
 test(otra_reserva_sin_repuesto, [nondet]) :-
@@ -112,3 +112,36 @@ test(no_se_extiende_a_donaciones_no_positivas, [fail]) :-
     incidente(retirar,u2,_).
 
 :- end_tests(situacion_3).
+
+:- begin_tests(situacion_4).
+:- use_module('../reglas').
+
+test(expuestas_a_lectura_fuera_de_rango, [nondet]) :-
+    falla(u1,comprometida,E), member(lectura_fuera_de_rango(e_rojos,94,9),E),
+    falla(u3,comprometida,_).
+test(llegada_durante_hueco_no_se_sabe, [nondet]) :-
+    falla(u4,no_se_sabe,[sin_lectura(e_rojos,98,102)]).
+test(movida_antes_y_plaquetas_salvadas, [nondet]) :-
+    falla(u2,salvada,_), falla(u25,salvada,_),
+    \+ falla(u2,comprometida,_).
+test(no_se_declara_salvada_por_lectura_final, [fail]) :-
+    falla(u1,salvada,_).
+:- end_tests(situacion_4).
+
+:- begin_tests(situacion_5).
+:- use_module('../reglas').
+
+test(escala_accidente_y_critico, [nondet]) :-
+    accidente(nivel_critico(o_neg),[restantes(1),umbral(2),consumidas([u4,u6])]).
+test(reparto_sin_duplicar_unidad, [true(Asignaciones == [s2-u3])]) :-
+    findall(S-U,accidente(asignar(S,U),_),Asignaciones).
+test(consumo_previo_a_reserva_y_sin_positivos, [nondet]) :-
+    hechos:hora_accidente(94),
+    hechos:evento_unidad(u4,reservada(cir1),95),
+    hechos:prueba(d3,negativa,80),
+    \+ (hechos:prueba(d3,positiva,Hora),Hora =< 94).
+test(urgencia_no_tipificada_sin_cobertura, [nondet]) :-
+    accidente(sin_cobertura(s4),_).
+test(conflicto_no_es_tipo_confirmado, [nondet]) :-
+    accidente(no_se_sabe(s3),_), \+ accidente(asignar(s3,_),_).
+:- end_tests(situacion_5).
