@@ -1,6 +1,6 @@
 :- encoding(utf8).
 :- module(reglas, [compatible/2, decide/3, situacion/3, existencias/3,
-                   incidente/3, falla/3, accidente/2]).
+                   incidente/3, falla/3, accidente/2, que_falta/3]).
 
 :- use_module(hechos).
 :- use_module(library(lists)).
@@ -330,3 +330,22 @@ decide(S,sin_existencias,[sin_unidad_compatible(Receptor)]) :-
     hechos:solicitud(S,Paciente,globulos,1,_),
     tipo_paciente(Paciente,Receptor,_),
     candidatos(Receptor,[]).
+
+% Consulta inversa educativa: requisitos documentados que impiden avanzar.
+% No ejecuta correcciones ni supone que una condición bastaría clínicamente.
+que_falta(S,tipo_confirmado(P),[conflicto_de_fuentes(P)]) :-
+    hechos:solicitud(S,P,globulos,_,_),
+    tipo_desconocido(P,conflicto_de_fuentes(P)).
+que_falta(S,tipificacion_registrada(P),[sin_registro(P)]) :-
+    hechos:solicitud(S,P,globulos,_,_),
+    tipo_desconocido(P,sin_registro(P)).
+que_falta(S,unidad_compatible(T),[sin_unidad_compatible(T)]) :-
+    hechos:solicitud(S,P,globulos,1,_),
+    tipo_paciente(P,T,_),
+    candidatos(T,[]).
+que_falta(C,repuesto_vigente(C),[reserva_inutil(U),sin_reemplazo(C)]) :-
+    situacion(U,reserva_inutil(C),_),
+    \+ repuesto_preferido(C,_).
+que_falta(U,liberacion_registrada(U),[propuesta_liberar(U)]) :-
+    situacion(U,reserva_liberable(_),_),
+    \+ situacion(U,utilizable,_).

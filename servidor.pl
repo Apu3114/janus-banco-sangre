@@ -16,6 +16,7 @@
 :- http_handler(root('api/incidente'), incidente_http, []).
 :- http_handler(root('api/falla'), falla_http, []).
 :- http_handler(root('api/accidente'), accidente_http, []).
+:- http_handler(root('api/que-falta'), faltantes_http, []).
 :- http_handler(root(app), pagina_http, []).
 
 % Servidor independiente del Cowboy/Erlang; endpoints de solo lectura.
@@ -54,6 +55,31 @@ decision_http(Request) :-
         reply_json_dict(_{solicitud:IdTexto,opciones:Opciones})
     ; reply_json_dict(_{error:"Solicitud ficticia desconocida"}, [status(404)])
     ).
+
+faltantes_http(Request) :-
+    http_parameters(Request, [id(IdTexto, [string])]),
+    ( (hechos:solicitud(Id,_,_,_,_); hechos:cirugia(Id,_,_,_,_);
+       hechos:unidad(Id,_,_,_)), atom_string(Id,IdTexto) ->
+        findall(_{objetivo:Objetivo,explicacion:Texto,evidencia:Pruebas},
+                (reglas:que_falta(Id,Meta,Evidencia),
+                 term_string(Meta,Objetivo),faltante_texto(Meta,Texto),
+                 maplist(term_string,Evidencia,Pruebas)),
+                Faltantes),
+        reply_json_dict(_{consulta:IdTexto,faltantes:Faltantes,
+                          nota:"Requisitos del modelo, no instrucciones clínicas"})
+    ; reply_json_dict(_{error:"Identificador ficticio desconocido"}, [status(404)])
+    ).
+
+faltante_texto(tipo_confirmado(P),Texto) :-
+    format(string(Texto),'Falta resolver con evidencia el conflicto entre registros del tipo de ~w.',[P]).
+faltante_texto(tipificacion_registrada(P),Texto) :-
+    format(string(Texto),'Falta registrar y confirmar el tipo de ~w; no se supone un tipo.',[P]).
+faltante_texto(unidad_compatible(T),Texto) :-
+    format(string(Texto),'No hay una unidad utilizable compatible con ~w en esta fotografía.',[T]).
+faltante_texto(repuesto_vigente(C),Texto) :-
+    format(string(Texto),'~w necesita una unidad libre compatible y vigente hasta la hora de cirugía.',[C]).
+faltante_texto(liberacion_registrada(U),Texto) :-
+    format(string(Texto),'La propuesta no libera ~w: falta registrar su liberación tras validarla.',[U]).
 
 reservas_http(_Request) :-
     findall(_{cirugia:Nombre,estado:"reacomodable",unidad:Original,

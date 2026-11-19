@@ -86,7 +86,9 @@ inventario utilizable en la situación 1 ni sustituyen una evaluación real.
 
 `servidor.pl` ofrece **API Prolog de solo lectura** y la página funcional
 [`/app`](web/index.html). La interfaz muestra inventario y decisiones desde
-la API, sin reglas de compatibilidad en JavaScript.
+la API, sin reglas de compatibilidad en JavaScript. Una guía inicial explica
+cómo usar el selector y cómo leer la evidencia; la consulta inversa «¿Qué falta
+para avanzar?» muestra requisitos que el modelo identifica sin cambiar hechos.
 
 El diseño base se **generó realmente en Google Stitch** y se adaptó a la
 página funcional: proyecto privado
@@ -109,6 +111,8 @@ de la maqueta**: todos los datos, órdenes y explicaciones vienen de Prolog.
 - `GET /api/falla`: exposición, dudas por huecos y tramos sin exposición
   detectada; incluye evidencia y el supuesto del equipo auxiliar.
 - `GET /api/accidente`: consumo, reparto sin duplicación y alerta crítica.
+- `GET /api/que-falta?id=s3` (también `s4`, `cir2` y `u9`): requisitos
+  documentados para avanzar; no son instrucciones clínicas ni realizan cambios.
 
 `grafico.pl` llama **desde Prolog** a `grafica_python.py` por Janus; Python
 únicamente dibuja el inventario calculado por Prolog. La gráfica es opcional:
@@ -155,6 +159,8 @@ navegador (también en otra Windows). No se instala Prolog en esa computadora
 ni se requiere túnel SSH. La VM ejecuta el servicio Prolog automáticamente.
 Nginx publica solamente `/gemelo/app` y `/gemelo/api/*` en el puerto 80,
 reenviándolos a Prolog en `127.0.0.1:8064`; no se abre el puerto 8064.
+En esas rutas Nginx acepta únicamente GET/HEAD; las consultas no escriben
+en el inventario.
 Las rutas previas `/app/` y `/api/*` siguen apuntando a Erlang.
 
 La IP pública de AWS Academy puede cambiar al reiniciar la VM: consulta la
@@ -214,8 +220,9 @@ archivo `salida/` está ignorado por Git.
    cinco ejemplos actuales son un subescenario explícito.
 4. Situación 5: ampliar a reparto de todos los tipos y a demanda variable;
    este ejercicio decide un único conflicto por O−.
-5. Ampliar las pruebas plunit a todos los tipos y a consultas contrafactuales
-   («qué falta»); hoy hay 44 pruebas, incluidas las cinco situaciones y la API.
+5. Ampliar las pruebas plunit a todos los tipos y las consultas contrafactuales
+   a más escenarios; hoy hay 51 pruebas, incluidas las cinco situaciones, la
+   consulta inversa y la API.
 6. Validación médica real: el umbral crítico, el margen de liberación y los
    rangos de temperatura son supuestos educativos, no protocolos.
 

@@ -109,4 +109,16 @@ test(accidente_critico_y_reparto, [nondet]) :-
           Duda.decision.solicitud == "s3" ),
         servidor:detener).
 
+test(pregunta_inversa_sin_escribir_en_inventario, [nondet]) :-
+    setup_call_cleanup(servidor:iniciar(Port),
+        ( pagina(Port,'api/que-falta?id=s3',Conflicto),
+          sub_string(Conflicto,_,_,_,'tipo_confirmado(p3)'),
+          pagina(Port,'api/que-falta?id=cir2',Cirugia),
+          sub_string(Cirugia,_,_,_,'repuesto_vigente(cir2)'),
+          pagina(Port,'api/que-falta?id=u9',Liberacion),
+          sub_string(Liberacion,_,_,_,'liberacion_registrada(u9)'),
+          pagina(Port,'api/inventario',Inventario),
+          sub_string(Inventario,_,_,_,'"disponibles":0,"tipo":"b_pos"') ),
+        servidor:detener).
+
 :- end_tests(interfaz_http).

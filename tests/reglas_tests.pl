@@ -145,3 +145,23 @@ test(urgencia_no_tipificada_sin_cobertura, [nondet]) :-
 test(conflicto_no_es_tipo_confirmado, [nondet]) :-
     accidente(no_se_sabe(s3),_), \+ accidente(asignar(s3,_),_).
 :- end_tests(situacion_5).
+
+:- begin_tests(consulta_inversa).
+:- use_module('../reglas').
+
+test(conflicto_exige_evidencia, [true(Metas == [tipo_confirmado(p3)])]) :-
+    findall(M,que_falta(s3,M,_),Metas).
+test(sin_registro_no_supone_tipo, [true(Metas == [tipificacion_registrada(p6)])]) :-
+    findall(M,que_falta(s4,M,_),Metas).
+test(cirugia_sin_repuesto, [nondet]) :-
+    que_falta(cir2,repuesto_vigente(cir2),E),
+    member(sin_reemplazo(cir2),E).
+test(liberacion_aun_no_registrada, [nondet]) :-
+    que_falta(u9,liberacion_registrada(u9),_),
+    \+ situacion(u9,utilizable,_).
+test(solicitud_cubierta_no_inventa_obstaculos, [fail]) :-
+    que_falta(s1,_,_).
+test(cirugia_con_repuesto_no_se_marca_sin_cobertura, [fail]) :-
+    que_falta(cir1,repuesto_vigente(cir1),_).
+
+:- end_tests(consulta_inversa).

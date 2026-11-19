@@ -278,6 +278,14 @@
       color: var(--muted); font-size: .82rem; background: #fbfcfd;
     }
     .loading { color: var(--muted); font-size: .82rem; }
+    .guia-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .8rem; }
+    .guia-grid article { padding: .8rem; border: 1px solid var(--line); border-radius: 9px; background: #fbfcfd; }
+    .guia-grid h3 { margin: 0 0 .3rem; font-size: .88rem; }
+    .guia-grid p { margin: 0; font-size: .8rem; color: var(--slate-700); }
+    .nav-escenarios { display: flex; flex-wrap: wrap; gap: .5rem; margin: .8rem 0 0; font-size: .78rem; }
+    .nav-escenarios a { padding: .2rem .55rem; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+    .consulta-inversa { display: flex; flex-wrap: wrap; align-items: end; gap: .7rem; }
+    .consulta-inversa .field { max-width: 380px; }
 
     footer {
       max-width: 1240px; margin: 0 auto; padding: 0 clamp(.9rem, 3vw, 1.6rem) 2.2rem;
@@ -295,6 +303,7 @@
       .consulta-top { grid-template-columns: 1fr; }
       .consulta-form { justify-content: stretch; }
       .cards-3, .trazabilidad, .estados { grid-template-columns: 1fr; }
+      .guia-grid { grid-template-columns: 1fr; }
       .head-status { width: 100%; }
     }
     @media (max-width: 520px) {
@@ -329,6 +338,16 @@
   </header>
 
   <main id="contenido">
+    <section class="panel" aria-labelledby="guia-titulo">
+      <div class="panel-head"><div class="panel-title"><h2 id="guia-titulo">¿Qué estás viendo?</h2></div><span class="small">Ejercicio académico #44 · Datos inventados</span></div>
+      <div class="guia-grid">
+        <article><h3>1 · Pregunta</h3><p>Elige una solicitud y consulta las alternativas; esto no reserva ninguna unidad.</p></article>
+        <article><h3>2 · Lee el porqué</h3><p>Cada respuesta trae explicación y evidencia del motor lógico. «No se sabe» no significa «no».</p></article>
+        <article><h3>3 · Compara escenarios</h3><p>La foto base es hora 100. El accidente (94), la falla (92–102) y la prueba tardía (102) son escenarios separados.</p></article>
+      </div>
+      <nav class="nav-escenarios" aria-label="Ir a una situación"><a href="#consulta-titulo">Asignación</a><a href="#reservas-titulo">Reservas</a><a href="#incidente-titulo">Prueba tardía</a><a href="#falla-titulo">Refrigeración</a><a href="#accidente-titulo">Accidente</a><a href="#faltantes-titulo">¿Qué falta?</a></nav>
+    </section>
+
     <section class="panel" aria-labelledby="consulta-titulo">
       <div class="consulta-top">
         <div>
@@ -431,6 +450,21 @@
       <div class="cards-4" id="accidente" aria-live="polite"><p class="loading">Cargando reparto…</p></div>
       <div class="motor" id="motor" aria-live="polite"><span>prolog&gt;</span> esperando consulta…</div>
       <p class="small" style="margin:.6rem 0 0">Ninguna asignación se ejecuta sobre el inventario: el motor solo propone y justifica.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="faltantes-titulo">
+      <div class="panel-head"><div class="panel-title"><h2 id="faltantes-titulo">¿Qué falta para avanzar? <span class="sub">· consulta inversa</span></h2></div><span class="small">La explicación también viene de Prolog</span></div>
+      <p class="small">Explora un obstáculo documentado. Esto no corrige datos, libera bolsas ni sustituye una validación clínica.</p>
+      <form class="consulta-inversa" id="form-faltantes">
+        <div class="field"><label for="objeto-faltante">Caso ficticio</label><select id="objeto-faltante" name="id">
+          <option value="s3">s3 · tipo contradictorio</option>
+          <option value="s4">s4 · paciente sin tipificar</option>
+          <option value="cir2">cir2 · cirugía sin repuesto</option>
+          <option value="u9">u9 · liberación aún no registrada</option>
+        </select></div>
+        <button type="submit" id="consultar-faltantes">Ver qué falta</button>
+      </form>
+      <div id="faltantes" aria-live="polite" style="margin-top:1rem"><p class="loading">Consultando a Prolog…</p></div>
     </section>
 
     <section class="panel" aria-labelledby="estados-titulo">
@@ -717,11 +751,38 @@
       }
     }
 
+    async function cargarFaltantes() {
+      const contenedor = $('faltantes');
+      const boton = $('consultar-faltantes');
+      const id = $('objeto-faltante').value;
+      boton.disabled = true;
+      contenedor.replaceChildren(nodo('p', 'loading', 'Consultando a Prolog…'));
+      try {
+        const datos = await pedir(API_BASE + '/api/que-falta?id=' + encodeURIComponent(id));
+        contenedor.replaceChildren();
+        if (datos.faltantes.length === 0) {
+          contenedor.append(nodo('div', 'empty-box', 'El modelo no identificó requisitos faltantes para esta consulta.'));
+        }
+        for (const fila of datos.faltantes) {
+          const card = nodo('article', 'case-card amber');
+          card.append(nodo('h3', null, fila.explicacion));
+          card.append(nodo('p', 'case-meta', 'Objetivo: ' + fila.objetivo));
+          card.append(evidencia(fila.evidencia));
+          contenedor.append(card);
+        }
+      } catch (error) { mostrarError(contenedor, error); }
+      finally { boton.disabled = false; }
+    }
+
     $('form-consulta').addEventListener('submit', (evento) => {
       evento.preventDefault();
       cargarDecision();
     });
     $('solicitud').addEventListener('change', cargarDecision);
+    $('form-faltantes').addEventListener('submit', (evento) => {
+      evento.preventDefault();
+      cargarFaltantes();
+    });
 
     cargarInventario();
     cargarDecision();
@@ -729,6 +790,7 @@
     cargarIncidente();
     cargarFalla();
     cargarAccidente();
+    cargarFaltantes();
   </script>
 </body>
 </html>
