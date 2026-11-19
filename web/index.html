@@ -455,6 +455,8 @@
 
   <script>
     const $ = (id) => document.getElementById(id);
+    // Nginx publica el gemelo bajo /gemelo/; en la VM también funciona /app.
+    const API_BASE = location.pathname.startsWith('/gemelo/') ? '/gemelo' : '';
     const estadoApi = $('api-estado');
     const puntoApi = $('api-dot');
 
@@ -523,7 +525,7 @@
     async function cargarInventario() {
       const contenedor = $('inventario');
       try {
-        const datos = await pedir('/api/inventario');
+        const datos = await pedir(API_BASE + '/api/inventario');
         $('hora-base').textContent = 't = ' + datos.hora;
         contenedor.replaceChildren();
         for (const fila of datos.inventario) {
@@ -558,7 +560,7 @@
       boton.disabled = true;
       propuesta.replaceChildren(nodo('p', 'loading', 'Consultando a Prolog…'));
       try {
-        const datos = await pedir('/api/decidir?id=' + encodeURIComponent(solicitud));
+        const datos = await pedir(API_BASE + '/api/decidir?id=' + encodeURIComponent(solicitud));
         propuesta.replaceChildren();
         alternativas.replaceChildren();
         if (!datos.opciones || datos.opciones.length === 0) {
@@ -610,7 +612,7 @@
     async function cargarReservas() {
       const contenedor = $('reservas');
       try {
-        const datos = await pedir('/api/reservas');
+        const datos = await pedir(API_BASE + '/api/reservas');
         contenedor.replaceChildren();
         for (const c of datos.cirugias) {
           const [clase, etiqueta] = ETIQUETAS_RESERVA[c.estado] || ['slate', c.estado];
@@ -628,7 +630,7 @@
     async function cargarIncidente() {
       const contenedor = $('incidente');
       try {
-        const datos = await pedir('/api/incidente');
+        const datos = await pedir(API_BASE + '/api/incidente');
         $('incidente-hora').textContent = 't = ' + datos.hora;
         contenedor.replaceChildren();
         const grupos = [
@@ -663,7 +665,7 @@
     async function cargarFalla() {
       const contenedor = $('falla');
       try {
-        const datos = await pedir('/api/falla');
+        const datos = await pedir(API_BASE + '/api/falla');
         $('falla-ventana').textContent = 't = ' + datos.inicio + '–' + datos.fin;
         contenedor.replaceChildren();
         for (const [estado, clase, etiqueta] of ESTADOS_FALLA) {
@@ -697,7 +699,7 @@
       const contenedor = $('accidente');
       const motor = $('motor');
       try {
-        const datos = await pedir('/api/accidente');
+        const datos = await pedir(API_BASE + '/api/accidente');
         $('accidente-hora').textContent = 't = ' + datos.hora;
         contenedor.replaceChildren();
         for (const fila of datos.decisiones) {

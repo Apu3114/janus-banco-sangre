@@ -144,10 +144,31 @@ una de las tres solicitudes de la foto base y consultar los otros escenarios
 en secciones independientes; cada tarjeta incluye la explicación y la
 evidencia enviadas por Prolog. También puedes
 consultar `curl 'http://localhost:8064/api/decidir?id=s1'`. Para detener
-el servidor: `?- detener.` **No publicarlo en Internet**: no tiene control
-de acceso y no está listo como aplicación web final.
+el servidor iniciado manualmente: `?- detener.` La demostración pública
+usa únicamente datos ficticios: no tiene autenticación ni HTTPS y **no está
+lista para uso hospitalario**.
 
-### Acceder desde otra Windows a la VM
+### Abrir en el navegador desde otra computadora
+
+Con la VM encendida, abre **<http://52.207.235.1/gemelo/app>** en cualquier
+navegador (también en otra Windows). No se instala Prolog en esa computadora
+ni se requiere túnel SSH. La VM ejecuta el servicio Prolog automáticamente.
+Nginx publica solamente `/gemelo/app` y `/gemelo/api/*` en el puerto 80,
+reenviándolos a Prolog en `127.0.0.1:8064`; no se abre el puerto 8064.
+Las rutas previas `/app/` y `/api/*` siguen apuntando a Erlang.
+
+La IP pública de AWS Academy puede cambiar al reiniciar la VM: consulta la
+IP nueva en EC2 y reemplázala en la URL. El puerto 80 debe estar permitido
+en el Security Group (ya se usa para la demo Erlang). Esta versión pública
+usa **HTTP sin TLS ni autenticación**: solo admite datos simulados.
+
+La configuración adicional y su instalador idempotente se guardan en
+[`deploy/nginx-gemelo.conf`](deploy/nginx-gemelo.conf) y
+[`deploy/instalar-nginx.sh`](deploy/instalar-nginx.sh). El instalador añade
+un `include` al servidor Nginx existente, conserva sus rutas previas, crea
+una copia de seguridad, comprueba `nginx -t` y recarga Nginx.
+
+### Administración en la VM y alternativa privada (SSH)
 
 En la VM se instaló el servicio independiente
 [`deploy/janus-banco-sangre.service`](deploy/janus-banco-sangre.service):
@@ -161,7 +182,8 @@ curl -I http://127.0.0.1:8064/app
 ```
 
 En **cada Windows desde donde quieras acceder**, necesitas OpenSSH y una
-clave SSH con permiso para entrar a la VM. En PowerShell deja esta ventana
+clave SSH con permiso para entrar a la VM **solo si quieres usar el acceso
+privado alternativo**. En PowerShell deja esta ventana
 abierta (sustituye la ruta de la clave y la IP si la VM cambió de dirección):
 
 ```powershell
