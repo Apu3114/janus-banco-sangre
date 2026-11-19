@@ -1,0 +1,15 @@
+[Unit]
+Description=Janus banco de sangre #44 (simulador Prolog educativo)
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/janus-banco-sangre-pruebas
+ExecStart=/usr/bin/swipl -q -s servidor.pl -g "iniciar(8064),thread_get_message(_)" -t halt
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

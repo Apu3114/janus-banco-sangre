@@ -147,6 +147,34 @@ consultar `curl 'http://localhost:8064/api/decidir?id=s1'`. Para detener
 el servidor: `?- detener.` **No publicarlo en Internet**: no tiene control
 de acceso y no está listo como aplicación web final.
 
+### Acceder desde otra Windows a la VM
+
+En la VM se instaló el servicio independiente
+[`deploy/janus-banco-sangre.service`](deploy/janus-banco-sangre.service):
+arranca automáticamente al encenderla y mantiene Prolog en
+`127.0.0.1:8064`. No requiere instalar Prolog en Windows ni modificar el
+servicio Erlang. Para comprobarlo en la VM:
+
+```bash
+sudo systemctl status janus-banco-sangre.service
+curl -I http://127.0.0.1:8064/app
+```
+
+En **cada Windows desde donde quieras acceder**, necesitas OpenSSH y una
+clave SSH con permiso para entrar a la VM. En PowerShell deja esta ventana
+abierta (sustituye la ruta de la clave y la IP si la VM cambió de dirección):
+
+```powershell
+ssh -o ExitOnForwardFailure=yes -i "C:\ruta\a\tu_clave" -N -L 127.0.0.1:18064:127.0.0.1:8064 ubuntu@52.207.235.1
+```
+
+Abre **<http://127.0.0.1:18064/app>** en el navegador de *esa misma Windows*;
+`Ctrl+C` cierra el túnel. Cada equipo necesita su propio túnel. La IP pública
+de AWS Academy puede cambiar al reiniciar: consulta la nueva en EC2 y reemplázala
+en el comando. SSH (puerto 22) debe ser accesible desde ese equipo; **no abras
+8064 a Internet** ni compartas claves privadas. Si necesitas una URL pública
+sin SSH, primero hay que agregar autenticación y TLS sin afectar la demo Erlang.
+
 Gráfica opcional: instala Matplotlib en el Python elegido por Janus y corre
 `swipl -q -s grafico.pl -g "graficar('salida/inventario_rojos.png')" -t halt`.
 En Windows, la carpeta de `python3.dll` debe estar en `PATH`; con SWI-Prolog
