@@ -16,6 +16,7 @@
 :- http_handler(root('api/incidente'), incidente_http, []).
 :- http_handler(root('api/falla'), falla_http, []).
 :- http_handler(root('api/accidente'), accidente_http, []).
+:- http_handler(root('api/simular-accidente'), simular_accidente_http, []).
 :- http_handler(root('api/que-falta'), faltantes_http, []).
 :- http_handler(root(app), pagina_http, []).
 
@@ -182,7 +183,24 @@ accidente_http(_Request) :-
              maplist(term_string,Evidencia,Pruebas)),
             Decisiones),
     reply_json_dict(_{hora:Hora,decisiones:Decisiones,
-                      nota:"Accidente ficticio anterior a la reserva de u4; propuestas sin escritura"}).
+                       nota:"Accidente ficticio anterior a la reserva de u4; propuestas sin escritura"}).
+
+simular_accidente_http(Request) :-
+    http_parameters(Request,[consumo(Consumo,[integer])]),
+    ( reglas:escenario_accidente(Consumo,Consumidas,Restantes,Umbral) ->
+        hechos:hora_accidente(Hora),
+        findall(_{decision:Json,explicacion:Mensajes,evidencia:Pruebas},
+                (reglas:simular_accidente(Consumo,Decision,Evidencia),
+                 accidente_json(Decision,Json),
+                 maplist(accidente_texto,Evidencia,Mensajes),
+                 maplist(term_string,Evidencia,Pruebas)),Decisiones),
+        (Restantes < Umbral -> Critico = true ; Critico = false),
+        reply_json_dict(_{hora:Hora,consumo:Consumo,consumidas:Consumidas,
+                          restantes_antes_reparto:Restantes,umbral_critico:Umbral,
+                          critico:Critico,decisiones:Decisiones,
+                          nota:"Comparación ficticia de solo lectura; no altera inventario ni reservas"})
+    ; reply_json_dict(_{error:"Consumo fuera del rango ficticio documentado"},[status(400)])
+    ).
 
 accidente_json(asignar(S,U),_{accion:"asignar",solicitud:Solicitud,
                                unidad:Unidad,titulo:Titulo}) :-
@@ -195,8 +213,9 @@ accidente_json(no_se_sabe(S),_{accion:"no_se_sabe",solicitud:Solicitud,
                                   titulo:Titulo}) :-
     atom_string(S,Solicitud),format(string(Titulo),'No se sabe el tipo · ~w',[S]).
 accidente_json(nivel_critico(T),_{accion:"nivel_critico",tipo:Tipo,
-                                     titulo:Titulo}) :-
-    atom_string(T,Tipo),format(string(Titulo),'Nivel crítico · ~w',[T]).
+                                      titulo:Titulo}) :-
+    atom_string(T,Tipo),tipo_visible(T,Visible),
+    format(string(Titulo),'Nivel crítico · ~w',[Visible]).
 
 accidente_texto(prioridad(tipo_confirmado),"Prioridad ficticia: tipo O negativo confirmado antes que paciente sin tipificar.").
 accidente_texto(prioridad(sin_tipificar),"Sin tipificar: solo se considera O negativo en este escenario.").
@@ -212,7 +231,8 @@ accidente_texto(restantes(N),Texto) :-
 accidente_texto(umbral(U),Texto) :-
     format(string(Texto),'Umbral crítico educativo: menos de ~w unidades.',[U]).
 accidente_texto(consumidas(Us),Texto) :-
-    format(string(Texto),'El accidente consume las unidades ficticias ~w.',[Us]).
+    atomic_list_concat(Us,', ',Unidades),
+    format(string(Texto),'El accidente consume las unidades ficticias ~w.',[Unidades]).
 
 decision_json(asignar(U,Tipo), _{accion:"propuesta",unidad:Id,tipo:Nombre}) :-
     atom_string(U,Id), atom_string(Tipo,Nombre).
@@ -223,12 +243,29 @@ decision_json(no_se_sabe(tipo_paciente), _{accion:"no_se_sabe",motivo:"tipo_paci
 decision_json(sin_existencias, _{accion:"sin_existencias"}).
 
 % La redacción de la explicación también vive en Prolog, no en JavaScript.
+tipo_visible(o_neg,'O−'). tipo_visible(o_pos,'O+').
+tipo_visible(a_neg,'A−'). tipo_visible(a_pos,'A+').
+tipo_visible(b_neg,'B−'). tipo_visible(b_pos,'B+').
+tipo_visible(ab_neg,'AB−'). tipo_visible(ab_pos,'AB+').
+
+fuente_visible(Tipo-Fuente,Texto) :-
+    tipo_visible(Tipo,Visible),
+    format(string(Texto),'~w en ~w',[Visible,Fuente]).
+
 explicacion_texto(tipo_de(P,registros(Fuentes)),Texto) :-
-    format(string(Texto),'Paciente ~w: tipo respaldado por ~w.',[P,Fuentes]).
+    maplist(fuente_visible,Fuentes,Descripciones),
+    atomics_to_string(Descripciones,', ',FuentesTexto),
+    format(string(Texto),'Paciente ~w: tipo registrado como ~w.',[P,FuentesTexto]).
 explicacion_texto(elegida(U,Tipo),Texto) :-
-    format(string(Texto),'La unidad ~w (~w) es compatible y utilizable.',[U,Tipo]).
+    tipo_visible(Tipo,Visible),
+    format(string(Texto),'La unidad ~w (~w) es compatible y utilizable.',[U,Visible]).
 explicacion_texto(comprobacion(Pruebas),Texto) :-
-    format(string(Texto),'Evidencia de vigencia, prueba y liberación: ~w.',[Pruebas]).
+    member(liberada_en(Liberacion),Pruebas),
+    member(prueba_negativa(Donacion,Prueba),Pruebas),
+    member(ubicada(Equipo,Desde),Pruebas),
+    member(vigente_hasta(Caduca),Pruebas),
+    format(string(Texto),'Liberada en hora ~w; prueba negativa de ~w en hora ~w; en ~w desde ~w; vigente hasta ~w.',
+           [Liberacion,Donacion,Prueba,Equipo,Desde,Caduca]).
 explicacion_texto(descartada(U,protege(S)),Texto) :-
     format(string(Texto),'No se prefiere ~w: se conserva O negativo para ~w.',[U,S]).
 explicacion_texto(descartada(U,orden_de_sustitucion),Texto) :-

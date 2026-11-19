@@ -1,6 +1,7 @@
 :- encoding(utf8).
 :- module(reglas, [compatible/2, decide/3, situacion/3, existencias/3,
-                   incidente/3, falla/3, accidente/2, que_falta/3]).
+                   incidente/3, falla/3, accidente/2, que_falta/3,
+                   simular_accidente/3, escenario_accidente/4]).
 
 :- use_module(hechos).
 :- use_module(library(lists)).
@@ -136,10 +137,6 @@ candidata_accidente(U,Tipo,Caduca) :-
     hechos:prueba(D,negativa,Prueba), Prueba =< Hora,
     \+ (hechos:prueba(D,positiva,Positiva),Positiva =< Hora).
 
-unidad_accidente(U,Tipo,Caduca) :-
-    candidata_accidente(U,Tipo,Caduca),
-    \+ hechos:consumo_accidente(U).
-
 consumo_valido :-
     findall(U,hechos:consumo_accidente(U),Unidades),
     sort(Unidades,Unicas), length(Unidades,N),length(Unicas,N),
@@ -152,31 +149,46 @@ solicitud_accidente(S,1,sin_tipificar) :-
     hechos:solicitud(S,P,globulos,1,emergencia),
     tipo_desconocido(P,sin_registro(P)).
 
-reparto_accidente(Solicitudes,Unidades) :-
+% Variación de SOLO LECTURA: 0, 1 o 2 unidades del accidente documentado.
+% El orden de consumo viene de hechos.pl, nunca del navegador.
+reparto_accidente_sim(N,Solicitudes,Unidades,Consumidas) :-
     consumo_valido,
+    integer(N), N >= 0,
+    findall(U,hechos:consumo_accidente(U),Configuradas),
+    length(Configuradas,Max), N =< Max,
+    length(Consumidas,N), append(Consumidas,_,Configuradas),
     findall(P-S-M,solicitud_accidente(S,P,M),Pares),
     keysort(Pares,Solicitudes),
-    findall(C-U,unidad_accidente(U,o_neg,C),Candidatas),
+    findall(C-U,(candidata_accidente(U,o_neg,C),
+                 \+ memberchk(U,Consumidas)),Candidatas),
     keysort(Candidatas,Unidades).
 
-accidente(asignar(S,U),[prioridad(Motivo),unidad_restante(U,Caduca)]) :-
-    reparto_accidente(Solicitudes,Unidades),
+escenario_accidente(N,Consumidas,Restantes,Umbral) :-
+    reparto_accidente_sim(N,_,Unidades,Consumidas),
+    length(Unidades,Restantes),
+    hechos:umbral_critico(o_neg,Umbral).
+
+accidente(Decision,Evidencia) :-
+    findall(U,hechos:consumo_accidente(U),Consumidas),
+    length(Consumidas,N),
+    simular_accidente(N,Decision,Evidencia).
+
+simular_accidente(N,asignar(S,U),[prioridad(Motivo),unidad_restante(U,Caduca)]) :-
+    reparto_accidente_sim(N,Solicitudes,Unidades,_),
     nth0(Pos,Solicitudes,_-S-Motivo),
     nth0(Pos,Unidades,Caduca-U).
-accidente(sin_cobertura(S),[demanda_sin_unidad(S),unidades_agotadas]) :-
-    reparto_accidente(Solicitudes,Unidades),
+simular_accidente(N,sin_cobertura(S),[demanda_sin_unidad(S),unidades_agotadas]) :-
+    reparto_accidente_sim(N,Solicitudes,Unidades,_),
     nth0(Pos,Solicitudes,_-S-_),
     length(Unidades,Disponibles), Pos >= Disponibles.
-accidente(no_se_sabe(S),[conflicto_de_fuentes(P)]) :-
+simular_accidente(N,no_se_sabe(S),[conflicto_de_fuentes(P)]) :-
+    reparto_accidente_sim(N,_,_,_),
     hechos:solicitud(S,P,globulos,1,emergencia),
     tipo_desconocido(P,conflicto_de_fuentes(P)).
-accidente(nivel_critico(o_neg),[restantes(N),umbral(Umbral),
-                                 consumidas(Consumidas)]) :-
-    consumo_valido,
-    hechos:umbral_critico(o_neg,Umbral),
-    findall(U,unidad_accidente(U,o_neg,_),Libres),length(Libres,N),
-    N < Umbral,
-    findall(U,hechos:consumo_accidente(U),Consumidas).
+simular_accidente(N,nivel_critico(o_neg),[restantes(Libres),umbral(Umbral),
+                                          consumidas(Consumidas)]) :-
+    escenario_accidente(N,Consumidas,Libres,Umbral),
+    Libres < Umbral.
 
 situacion(Paciente,tipo_paciente(no_se_sabe),[Motivo]) :-
     tipo_desconocido(Paciente,Motivo).

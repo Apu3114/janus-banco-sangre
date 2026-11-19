@@ -69,6 +69,10 @@ tamaño exportado 2560×5076, desktop).
   JavaScript.
 - Ajustes posteriores a la revisión visual: columna de alternativas alineada y
   tarjetas de reparto con etiquetas legibles en español.
+- Iteración funcional posterior: guía de lectura, alternativas compactas
+  desplegables y simulador de consumo O− (0/1/2) con reparto recalculado por
+  Prolog. Esta iteración **no es otra pantalla generada por Stitch**: es una
+  adaptación del diseño para que se puedan probar hipótesis reales del modelo.
 
 **Estado:** diseño generado en Stitch y **integrado** en la interfaz funcional;
 las decisiones y datos siempre provienen de Prolog. No afirmar que la maqueta

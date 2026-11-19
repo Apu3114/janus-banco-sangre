@@ -190,6 +190,7 @@
     }
     .alt-card.warn { border-left-color: var(--amber-500); background: var(--amber-50); }
     .alt-card h4 { margin: 0 0 .25rem; font-size: .86rem; color: var(--ink); }
+    .alt-card summary { cursor: pointer; font-size: .86rem; font-weight: 700; color: var(--ink); }
     .alt-card .tag-mini {
       font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
       color: var(--muted); display: block; margin-bottom: .2rem;
@@ -258,17 +259,6 @@
     .nota p { margin: 0 0 .4rem; }
 
     .panel-alerta { border-color: #fecaca; background: linear-gradient(180deg, #fff 0%, #fff8f8 100%); }
-    .motor {
-      margin-top: .9rem; background: #1e293b; color: #a7f3d0; border-radius: 8px;
-      padding: .6rem .8rem; font-family: var(--mono); font-size: .7rem;
-      overflow-wrap: anywhere; line-height: 1.6;
-    }
-    .motor span { color: #64748b; }
-
-    .estados { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; }
-    .estado-card { border: 1px solid var(--line); border-radius: 9px; padding: .65rem .8rem; font-size: .78rem; color: var(--slate-700); background: #fff; }
-    .estado-card b { display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .2rem; }
-
     .error-box {
       border: 1px solid #fecaca; background: var(--red-50); color: #7f1d1d; border-radius: 9px;
       padding: .75rem .85rem; font-size: .82rem;
@@ -286,6 +276,26 @@
     .nav-escenarios a { padding: .2rem .55rem; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
     .consulta-inversa { display: flex; flex-wrap: wrap; align-items: end; gap: .7rem; }
     .consulta-inversa .field { max-width: 380px; }
+    .hero { background: linear-gradient(125deg, #3d0f1e, #631c33 65%, #8a3351); color: #fff; border: 0; }
+    .hero h2, .hero .panel-title h2 { color: #fff; font-family: var(--serif); font-size: clamp(1.5rem,3vw,2.2rem); }
+    .hero .panel-head { border-color: rgba(255,255,255,.2); }
+    .hero .small, .hero .guia-grid p { color: #f8e6ec; }
+    .hero .guia-grid article { background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.22); }
+    .hero .nav-escenarios a { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); color: #fff; text-decoration: none; }
+    .hero .nav-escenarios a:hover { background: rgba(255,255,255,.25); }
+    .sim-grid { display: grid; grid-template-columns: minmax(255px,.7fr) minmax(0,1.5fr); gap: 1rem; align-items: start; }
+    .sim-control { padding: 1rem; border-radius: 11px; background: #fff; border: 1px solid var(--line); }
+    .sim-control h3 { margin: 0 0 .25rem; }
+    .sim-control label { display: block; margin: .8rem 0 .35rem; font-size: .82rem; font-weight: 700; }
+    .sim-control select { margin-bottom: .6rem; }
+    .sim-control button { width: 100%; justify-content: center; }
+    .sim-results { min-width: 0; }
+    .sim-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .6rem; margin-bottom: .75rem; }
+    .sim-metric { border: 1px solid var(--line); background: #fff; border-radius: 9px; padding: .65rem; }
+    .sim-metric b { display: block; font-family: var(--serif); font-size: 1.7rem; line-height: 1.1; color: var(--maroon-900); }
+    .sim-metric span { display: block; font-size: .7rem; color: var(--muted); }
+    .sim-outcomes { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .6rem; }
+    .sim-outcomes .case-card { min-width: 0; }
 
     footer {
       max-width: 1240px; margin: 0 auto; padding: 0 clamp(.9rem, 3vw, 1.6rem) 2.2rem;
@@ -302,14 +312,17 @@
       .banner .meta { display: none; }
       .consulta-top { grid-template-columns: 1fr; }
       .consulta-form { justify-content: stretch; }
-      .cards-3, .trazabilidad, .estados { grid-template-columns: 1fr; }
+      .cards-3, .trazabilidad { grid-template-columns: 1fr; }
       .guia-grid { grid-template-columns: 1fr; }
+      .sim-grid { grid-template-columns: 1fr; }
       .head-status { width: 100%; }
     }
     @media (max-width: 520px) {
       .inv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .cards-4 { grid-template-columns: 1fr; }
       .brand p { display: none; }
+      .sim-metrics { grid-template-columns: repeat(3,minmax(0,1fr)); }
+      .sim-outcomes { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -338,12 +351,12 @@
   </header>
 
   <main id="contenido">
-    <section class="panel" aria-labelledby="guia-titulo">
-      <div class="panel-head"><div class="panel-title"><h2 id="guia-titulo">¿Qué estás viendo?</h2></div><span class="small">Ejercicio académico #44 · Datos inventados</span></div>
+    <section class="panel hero" aria-labelledby="guia-titulo">
+      <div class="panel-head"><div class="panel-title"><h2 id="guia-titulo">Explora decisiones, no solo datos.</h2></div><span class="small">Ejercicio académico #44 · Datos inventados</span></div>
       <div class="guia-grid">
         <article><h3>1 · Pregunta</h3><p>Elige una solicitud y consulta las alternativas; esto no reserva ninguna unidad.</p></article>
         <article><h3>2 · Lee el porqué</h3><p>Cada respuesta trae explicación y evidencia del motor lógico. «No se sabe» no significa «no».</p></article>
-        <article><h3>3 · Compara escenarios</h3><p>La foto base es hora 100. El accidente (94), la falla (92–102) y la prueba tardía (102) son escenarios separados.</p></article>
+        <article><h3>3 · Cambia el accidente</h3><p>Prueba consumir 0, 1 o 2 unidades O−. Prolog recalcula a quién alcanza y cuándo hay alerta.</p></article>
       </div>
       <nav class="nav-escenarios" aria-label="Ir a una situación"><a href="#consulta-titulo">Asignación</a><a href="#reservas-titulo">Reservas</a><a href="#incidente-titulo">Prueba tardía</a><a href="#falla-titulo">Refrigeración</a><a href="#accidente-titulo">Accidente</a><a href="#faltantes-titulo">¿Qué falta?</a></nav>
     </section>
@@ -374,6 +387,36 @@
           <div id="alternativas" aria-live="polite"><p class="loading">Sin consulta todavía.</p></div>
         </div>
       </div>
+    </section>
+
+    <section class="panel panel-alerta" aria-labelledby="accidente-titulo">
+      <div class="panel-head">
+        <div class="panel-title">
+          <span class="chip red" aria-hidden="true">5</span>
+          <h2 id="accidente-titulo">Accidente y reparto <span class="sub">· situación 5</span></h2>
+        </div>
+        <span class="small">Horario del evento: <span class="mono" id="accidente-hora">t = —</span></span>
+      </div>
+      <p class="small" style="margin:-.4rem 0 .9rem">Cambia el consumo y compara las respuestas. Escenario separado de la foto base (hora 100); aquí es hora 94.</p>
+      <div class="sim-grid">
+        <form class="sim-control" id="form-simulacion">
+          <h3>Prueba un «¿qué pasaría si…?»</h3>
+          <p class="small" style="margin:0">El caso del enunciado es 2; prueba valores menores para ver el efecto de la escasez.</p>
+          <label for="consumo">Unidades O− consumidas en el accidente</label>
+          <select id="consumo" name="consumo">
+            <option value="0">0 · sin consumo</option>
+            <option value="1">1 · una unidad consumida</option>
+            <option value="2" selected>2 · caso del accidente</option>
+          </select>
+          <button type="submit" id="simular">Simular reparto</button>
+          <p class="small" style="margin:.6rem 0 0">Solo cambia esta consulta. No guarda ni entrega bolsas.</p>
+        </form>
+        <div class="sim-results">
+          <div class="sim-metrics" id="sim-metrics" aria-live="polite"><p class="loading">Calculando escenario…</p></div>
+          <div class="sim-outcomes" id="accidente" aria-live="polite"><p class="loading">Cargando reparto…</p></div>
+        </div>
+      </div>
+      <p class="small" id="consumo-detalle" aria-live="polite" style="margin:.65rem 0 0"></p>
     </section>
 
     <section class="panel" aria-labelledby="inventario-titulo">
@@ -438,20 +481,6 @@
       </div>
     </section>
 
-    <section class="panel panel-alerta" aria-labelledby="accidente-titulo">
-      <div class="panel-head">
-        <div class="panel-title">
-          <span class="chip red" aria-hidden="true">5</span>
-          <h2 id="accidente-titulo">Accidente y reparto <span class="sub">· situación 5</span></h2>
-        </div>
-        <span class="small">Horario del evento: <span class="mono" id="accidente-hora">t = —</span></span>
-      </div>
-      <p class="small" style="margin:-.4rem 0 .9rem">Foto contrafactual anterior a la reserva de u4. Consumo ficticio de 2 unidades O−; el umbral crítico educativo es menos de 2 utilizables.</p>
-      <div class="cards-4" id="accidente" aria-live="polite"><p class="loading">Cargando reparto…</p></div>
-      <div class="motor" id="motor" aria-live="polite"><span>prolog&gt;</span> esperando consulta…</div>
-      <p class="small" style="margin:.6rem 0 0">Ninguna asignación se ejecuta sobre el inventario: el motor solo propone y justifica.</p>
-    </section>
-
     <section class="panel" aria-labelledby="faltantes-titulo">
       <div class="panel-head"><div class="panel-title"><h2 id="faltantes-titulo">¿Qué falta para avanzar? <span class="sub">· consulta inversa</span></h2></div><span class="small">La explicación también viene de Prolog</span></div>
       <p class="small">Explora un obstáculo documentado. Esto no corrige datos, libera bolsas ni sustituye una validación clínica.</p>
@@ -467,19 +496,6 @@
       <div id="faltantes" aria-live="polite" style="margin-top:1rem"><p class="loading">Consultando a Prolog…</p></div>
     </section>
 
-    <section class="panel" aria-labelledby="estados-titulo">
-      <div class="panel-head">
-        <div class="panel-title">
-          <h2 id="estados-titulo" style="font-size:1rem">Estados de la interfaz</h2>
-        </div>
-        <span class="small">Toda decisión llega de la API SWI-Prolog</span>
-      </div>
-      <div class="estados">
-        <div class="estado-card"><b style="color:var(--teal-700)">Listo</b>Datos y explicaciones recibidos del motor lógico.</div>
-        <div class="estado-card"><b style="color:var(--amber-600)">Cargando</b>Consulta en curso; la página no adelanta respuestas.</div>
-        <div class="estado-card"><b style="color:var(--red-700)">Error</b>El gemelo no respondió; se muestra el fallo sin inventar datos.</div>
-      </div>
-    </section>
   </main>
 
   <footer>
@@ -515,7 +531,7 @@
     function evidencia(items) {
       if (!items || items.length === 0) return document.createDocumentFragment();
       const det = nodo('details', 'evidence');
-      det.append(nodo('summary', null, 'Evidencia Prolog'));
+      det.append(nodo('summary', null, 'Ver hechos y reglas usados'));
       for (const termino of items) det.append(nodo('code', null, termino));
       return det;
     }
@@ -606,14 +622,18 @@
         const d = primera.decision;
         const card = nodo('div', 'propuesta');
         const cabecera = nodo('div', 'propuesta-head');
-        cabecera.append(nodo('span', 'badge', 'Propuesta preferida del motor'));
+        cabecera.append(nodo('span', 'badge', 'Respuesta principal del motor'));
         cabecera.append(nodo('span', 'meta-rule', 'solicitud ' + datos.solicitud + ' · ' + d.accion));
         card.append(cabecera);
         card.append(nodo('h3', null, tituloDecision(d)));
         const detalle = detalleDecision(d);
         if (detalle) card.append(nodo('p', 'small', detalle));
-        card.append(lista(primera.explicacion));
-        card.append(evidencia(primera.evidencia));
+        card.append(lista(primera.explicacion.slice(0, 2)));
+        const razones = nodo('details', 'evidence');
+        razones.append(nodo('summary', null, 'Leer explicación completa'));
+        razones.append(lista(primera.explicacion));
+        razones.append(evidencia(primera.evidencia));
+        card.append(razones);
         propuesta.append(card);
 
         if (resto.length === 0) {
@@ -622,9 +642,11 @@
           resto.forEach((opcion, indice) => {
             const alt = nodo('article', 'alt-card' + (opcion.decision.accion === 'no_se_sabe' ? ' warn' : ''));
             alt.append(nodo('span', 'tag-mini', 'Alternativa ' + (indice + 2)));
-            alt.append(nodo('h4', null, tituloDecision(opcion.decision)));
-            alt.append(lista(opcion.explicacion));
-            alt.append(evidencia(opcion.evidencia));
+            const detalleAlt = nodo('details');
+            detalleAlt.append(nodo('summary', null, tituloDecision(opcion.decision)));
+            detalleAlt.append(lista(opcion.explicacion));
+            detalleAlt.append(evidencia(opcion.evidencia));
+            alt.append(detalleAlt);
             alternativas.append(alt);
           });
         }
@@ -731,11 +753,25 @@
 
     async function cargarAccidente() {
       const contenedor = $('accidente');
-      const motor = $('motor');
+      const metricas = $('sim-metrics');
+      const boton = $('simular');
+      const consumo = $('consumo').value;
+      boton.disabled = true;
+      contenedor.replaceChildren(nodo('p', 'loading', 'Prolog está recalculando…'));
+      metricas.replaceChildren();
       try {
-        const datos = await pedir(API_BASE + '/api/accidente');
+        const datos = await pedir(API_BASE + '/api/simular-accidente?consumo=' + encodeURIComponent(consumo));
         $('accidente-hora').textContent = 't = ' + datos.hora;
         contenedor.replaceChildren();
+        for (const [numero, etiqueta] of [
+          [datos.consumo, 'consumidas'],
+          [datos.restantes_antes_reparto, 'O− libres antes del reparto'],
+          [datos.critico ? 'Sí' : 'No', 'alerta crítica del modelo']
+        ]) {
+          const metrica = nodo('div', 'sim-metric');
+          metrica.append(nodo('b', null, String(numero)), nodo('span', null, etiqueta));
+          metricas.append(metrica);
+        }
         for (const fila of datos.decisiones) {
           const [clase, etiqueta] = TONO_ACCION[fila.decision.accion] || ['slate', fila.decision.accion];
           const cuerpo = document.createDocumentFragment();
@@ -743,11 +779,14 @@
           cuerpo.append(evidencia(fila.evidencia));
           contenedor.append(tarjetaCaso(clase, etiqueta, fila.decision.titulo || etiqueta, cuerpo));
         }
-        const terminos = datos.decisiones.flatMap((f) => f.evidencia || []);
-        motor.replaceChildren(nodo('span', null, 'prolog> '), document.createTextNode(terminos.join(' · ')));
+        $('consumo-detalle').textContent = 'Unidades consumidas en esta hipótesis: ' +
+          (datos.consumidas.length ? datos.consumidas.join(', ') : 'ninguna') + '. ' + datos.nota;
       } catch (error) {
         mostrarError(contenedor, error);
-        motor.replaceChildren(nodo('span', null, 'prolog> '), document.createTextNode('sin conexión con el motor'));
+        metricas.replaceChildren();
+        $('consumo-detalle').textContent = '';
+      } finally {
+        boton.disabled = false;
       }
     }
 
@@ -782,6 +821,10 @@
     $('form-faltantes').addEventListener('submit', (evento) => {
       evento.preventDefault();
       cargarFaltantes();
+    });
+    $('form-simulacion').addEventListener('submit', (evento) => {
+      evento.preventDefault();
+      cargarAccidente();
     });
 
     cargarInventario();

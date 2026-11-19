@@ -75,6 +75,12 @@ solicitud; las unidades se ordenan por caducidad e ID y no se duplican.
 Es un supuesto de simulación, **no una política clínica**. No se mezclan las
 horas 94, 100 y 102 como si fueran una sola foto.
 
+La interfaz permite una **simulación contrafactual de solo lectura**: variar
+el consumo del accidente a 0, 1 o 2 unidades documentadas (`u4` y luego `u6`).
+Prolog recalcula el reparto y el nivel crítico sin cambiar la foto base ni
+registrar entregas. Este control no generaliza a consumos arbitrarios ni a
+otros tipos de sangre.
+
 La prioridad de sustitución **es un supuesto educativo tomado del proyecto
 Erlang previo**: primero tipo exacto, después menor versatilidad y, dentro de
 un tipo, FEFO. Desempate por nombre del tipo e ID. Que otra solicitud O−
@@ -111,6 +117,9 @@ de la maqueta**: todos los datos, órdenes y explicaciones vienen de Prolog.
 - `GET /api/falla`: exposición, dudas por huecos y tramos sin exposición
   detectada; incluye evidencia y el supuesto del equipo auxiliar.
 - `GET /api/accidente`: consumo, reparto sin duplicación y alerta crítica.
+- `GET /api/simular-accidente?consumo=0` (también `1` o `2`): reparto
+  contrafactual y métricas recalculadas por Prolog; valores fuera del rango
+  documentado responden `400`.
 - `GET /api/que-falta?id=s3` (también `s4`, `cir2` y `u9`): requisitos
   documentados para avanzar; no son instrucciones clínicas ni realizan cambios.
 
@@ -221,8 +230,8 @@ archivo `salida/` está ignorado por Git.
 4. Situación 5: ampliar a reparto de todos los tipos y a demanda variable;
    este ejercicio decide un único conflicto por O−.
 5. Ampliar las pruebas plunit a todos los tipos y las consultas contrafactuales
-   a más escenarios; hoy hay 51 pruebas, incluidas las cinco situaciones, la
-   consulta inversa y la API.
+   a más escenarios; hoy hay 58 pruebas, incluidas las cinco situaciones, la
+   simulación de consumo, la consulta inversa y la API.
 6. Validación médica real: el umbral crítico, el margen de liberación y los
    rangos de temperatura son supuestos educativos, no protocolos.
 

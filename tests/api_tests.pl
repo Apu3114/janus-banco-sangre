@@ -29,6 +29,8 @@ test(decision_y_conflicto, [nondet]) :-
         ( pagina(Port,'api/decidir?id=s1',Decision),
           sub_string(Decision,_,_,_,'"unidad":"u1"'),
           sub_string(Decision,_,_,_,'protege(s2)'),
+          sub_string(Decision,_,_,_,'A+ en expediente'),
+          sub_string(Decision,_,_,_,'vigente hasta 112'),
           pagina(Port,'api/decidir?id=s3',Conflicto),
           sub_string(Conflicto,_,_,_,'no_se_sabe'),
           \+ sub_string(Conflicto,_,_,_,'"accion":"propuesta"') ),
@@ -119,6 +121,33 @@ test(pregunta_inversa_sin_escribir_en_inventario, [nondet]) :-
           sub_string(Liberacion,_,_,_,'liberacion_registrada(u9)'),
           pagina(Port,'api/inventario',Inventario),
           sub_string(Inventario,_,_,_,'"disponibles":0,"tipo":"b_pos"') ),
+        servidor:detener).
+
+test(simulador_cambia_reparto_sin_escritura, [nondet]) :-
+    setup_call_cleanup(servidor:iniciar(Port),
+        ( pagina(Port,'api/simular-accidente?consumo=0',Respuesta),
+          atom_string(Json,Respuesta),atom_json_dict(Json,Datos,[]),
+          Datos.restantes_antes_reparto == 3,
+          Datos.critico == false,
+          member(Asignacion,Datos.decisiones),
+          Asignacion.decision.solicitud == "s4",
+          Asignacion.decision.accion == "asignar",
+          pagina(Port,'api/simular-accidente?consumo=2',Dos),
+          atom_string(DosJson,Dos),atom_json_dict(DosJson,DatosDos,[]),
+          DatosDos.restantes_antes_reparto == 1,
+          DatosDos.critico == true,
+          member(SinCobertura,DatosDos.decisiones),
+          SinCobertura.decision.solicitud == "s4",
+          SinCobertura.decision.accion == "sin_cobertura" ),
+        servidor:detener).
+
+test(simulador_rechaza_consumo_fuera_de_rango, [nondet]) :-
+    setup_call_cleanup(servidor:iniciar(Port),
+        ( format(atom(Url),'http://127.0.0.1:~w/api/simular-accidente?consumo=3',[Port]),
+          setup_call_cleanup(http_open(Url,Stream,[status_code(Status)]),
+                             (Status == 400,read_string(Stream,_,Cuerpo),
+                              sub_string(Cuerpo,_,_,_,"fuera del rango")),
+                             close(Stream)) ),
         servidor:detener).
 
 :- end_tests(interfaz_http).

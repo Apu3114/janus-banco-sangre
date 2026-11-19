@@ -165,3 +165,24 @@ test(cirugia_con_repuesto_no_se_marca_sin_cobertura, [fail]) :-
     que_falta(cir1,repuesto_vigente(cir1),_).
 
 :- end_tests(consulta_inversa).
+
+:- begin_tests(simulacion_accidente).
+:- use_module('../reglas').
+
+test(sin_consumo_cubre_ambas_solicitudes, [true(Asignaciones == [s2-u4,s4-u3])]) :-
+    findall(S-U,simular_accidente(0,asignar(S,U),_),Asignaciones),
+    escenario_accidente(0,[],3,2).
+test(una_consumida_aun_cubre_ambas, [true(Asignaciones == [s2-u3,s4-u6])]) :-
+    findall(S-U,simular_accidente(1,asignar(S,U),_),Asignaciones),
+    escenario_accidente(1,[u4],2,2).
+test(dos_consumidas_dejan_s4_sin_cobertura, [nondet]) :-
+    escenario_accidente(2,[u4,u6],1,2),
+    simular_accidente(2,sin_cobertura(s4),_),
+    simular_accidente(2,nivel_critico(o_neg),_).
+test(simulacion_no_modifica_foto_base, [true(N == 2)]) :-
+    findall(_,simular_accidente(0,_,_),_),
+    existencias(globulos,o_neg,N).
+test(no_permite_consumo_no_documentado, [fail]) :-
+    escenario_accidente(3,_,_,_).
+
+:- end_tests(simulacion_accidente).
