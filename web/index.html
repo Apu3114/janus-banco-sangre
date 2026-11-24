@@ -153,7 +153,7 @@
     .consulta-form { display: flex; flex-wrap: wrap; gap: .55rem; align-items: end; justify-content: flex-end; }
     .field { display: flex; flex-direction: column; gap: .3rem; min-width: 230px; flex: 1 1 230px; }
     .field label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
-    select {
+    select, input {
       font: inherit; font-size: .86rem; padding: .55rem .65rem; border-radius: 8px;
       border: 1px solid #94a3b8; background: #fff; color: var(--ink); width: 100%;
     }
@@ -296,6 +296,30 @@
     .sim-metric span { display: block; font-size: .7rem; color: var(--muted); }
     .sim-outcomes { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .6rem; }
     .sim-outcomes .case-card { min-width: 0; }
+    .grafo-form { display: flex; align-items: end; flex-wrap: wrap; gap: .6rem; margin-bottom: 1rem; }
+    .grafo-form .field { max-width: 400px; }
+    .grafo-layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 1rem; }
+    .grafo-lienzo { overflow: auto; min-height: 380px; max-height: 800px; border-radius: 12px;
+      border: 1px solid var(--line); background: radial-gradient(circle at center, #fff 20%, #f5f9f9 100%); }
+    .grafo-lienzo svg { display: block; max-width: none; }
+    .grafo-lienzo .linea { stroke: #a9bbc6; stroke-width: 2; }
+    .grafo-lienzo .linea:focus, .grafo-lienzo .linea:hover { stroke: var(--maroon-900); stroke-width: 5; outline: none; }
+    .grafo-lienzo .nodo-g { cursor: pointer; }
+    .grafo-lienzo .nodo-g rect { fill: #fff; stroke: #9db8b4; stroke-width: 2; }
+    .grafo-lienzo .nodo-g:hover rect, .grafo-lienzo .nodo-g:focus rect { stroke: var(--maroon-900); stroke-width: 4; }
+    .grafo-lienzo .nodo-g.centro rect { fill: var(--maroon-900); stroke: var(--maroon-950); }
+    .grafo-lienzo .nodo-g text { font: 700 14px var(--sans); fill: var(--ink); pointer-events: none; }
+    .grafo-lienzo .nodo-g.centro text { fill: #fff; }
+    .grafo-lienzo .nodo-g .tipo { font: 11px var(--sans); fill: var(--muted); }
+    .grafo-lienzo .nodo-g.centro .tipo { fill: #f3d9e2; }
+    .grafo-detalle { background: #f8fafc; border: 1px solid var(--line); border-radius: 11px; padding: .9rem; }
+    .grafo-detalle h3 { margin: 0 0 .3rem; font-size: 1rem; }
+    .grafo-detalle p { margin: .3rem 0; overflow-wrap: anywhere; }
+    .grafo-relaciones { max-height: 260px; overflow: auto; border-top: 1px solid var(--line); margin-top: .8rem; padding-top: .5rem; }
+    .grafo-relaciones button { display: block; width: 100%; text-align: left; background: transparent;
+      color: var(--slate-700); border: 1px solid transparent; font-size: .75rem; padding: .4rem; }
+    .grafo-relaciones button:hover, .grafo-relaciones button:focus { background: #e7f5f1; }
+    .grafo-detalle code { display: block; font-size: .7rem; overflow-wrap: anywhere; }
 
     footer {
       max-width: 1240px; margin: 0 auto; padding: 0 clamp(.9rem, 3vw, 1.6rem) 2.2rem;
@@ -307,6 +331,7 @@
       .inv-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       .cards-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .consulta-grid, .dos-columnas { grid-template-columns: 1fr; }
+      .grafo-layout { grid-template-columns: 1fr; }
     }
     @media (max-width: 780px) {
       .banner .meta { display: none; }
@@ -315,6 +340,7 @@
       .cards-3, .trazabilidad { grid-template-columns: 1fr; }
       .guia-grid { grid-template-columns: 1fr; }
       .sim-grid { grid-template-columns: 1fr; }
+      .grafo-lienzo { max-height: 470px; }
       .head-status { width: 100%; }
     }
     @media (max-width: 520px) {
@@ -358,7 +384,22 @@
         <article><h3>2 · Lee el porqué</h3><p>Cada respuesta trae explicación y evidencia del motor lógico. «No se sabe» no significa «no».</p></article>
         <article><h3>3 · Cambia el accidente</h3><p>Prueba consumir 0, 1 o 2 unidades O−. Prolog recalcula a quién alcanza y cuándo hay alerta.</p></article>
       </div>
-      <nav class="nav-escenarios" aria-label="Ir a una situación"><a href="#consulta-titulo">Asignación</a><a href="#reservas-titulo">Reservas</a><a href="#incidente-titulo">Prueba tardía</a><a href="#falla-titulo">Refrigeración</a><a href="#accidente-titulo">Accidente</a><a href="#faltantes-titulo">¿Qué falta?</a></nav>
+      <nav class="nav-escenarios" aria-label="Ir a una situación"><a href="#grafo-titulo">Mapa de conexiones</a><a href="#consulta-titulo">Asignación</a><a href="#reservas-titulo">Reservas</a><a href="#incidente-titulo">Prueba tardía</a><a href="#falla-titulo">Refrigeración</a><a href="#accidente-titulo">Accidente</a><a href="#faltantes-titulo">¿Qué falta?</a></nav>
+    </section>
+
+    <section class="panel" aria-labelledby="grafo-titulo">
+      <div class="panel-head"><div class="panel-title"><h2 id="grafo-titulo">Mapa de conexiones del banco</h2></div><span class="small">Hechos de Prolog · fotografía base t = 100</span></div>
+      <p class="small">Como en un mapa de actores: pulsa un nodo para explorar su entorno o una línea para ver el hecho que la respalda. Se muestran hasta dos conexiones desde el centro; una reserva no equivale a una transfusión.</p>
+      <form class="grafo-form" id="form-grafo">
+        <div class="field"><label for="grafo-id">Buscar por identificador</label><input id="grafo-id" name="id" list="grafo-ejemplos" value="u22" placeholder="u22, d1, p5, s2, cir1…" autocomplete="off" required></div>
+        <datalist id="grafo-ejemplos"><option value="u22"><option value="d1"><option value="p5"><option value="s2"><option value="cir1"><option value="u12"></datalist>
+        <button type="submit" id="buscar-grafo">Explorar conexiones</button>
+      </form>
+      <div class="grafo-layout">
+        <div class="grafo-lienzo" id="grafo-lienzo" aria-label="Mapa de relaciones; usa también la lista de conexiones"><p class="loading">Consultando relaciones…</p></div>
+        <aside class="grafo-detalle" aria-live="polite"><h3>Detalle y evidencia</h3><div id="grafo-detalle">Elige un nodo o una conexión.</div><div class="grafo-relaciones" id="grafo-relaciones"></div></aside>
+      </div>
+      <p class="small" id="grafo-nota">Solo hechos registrados; las asignaciones propuestas se consultan abajo, no se dibujan como entregas.</p>
     </section>
 
     <section class="panel" aria-labelledby="consulta-titulo">
@@ -538,6 +579,118 @@
 
     function tipoTexto(tipo) {
       return tipo.replace('_neg', '−').replace('_pos', '+').toUpperCase();
+    }
+
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    let consultaGrafo = 0;
+    function svgNodo(tag, atributos, texto) {
+      const elemento = document.createElementNS(SVG_NS, tag);
+      for (const [clave, valor] of Object.entries(atributos)) elemento.setAttribute(clave, String(valor));
+      if (texto !== undefined) elemento.textContent = texto;
+      return elemento;
+    }
+
+    function dibujarGrafo(datos) {
+      const lienzo = $('grafo-lienzo');
+      const detalle = $('grafo-detalle');
+      const relaciones = $('grafo-relaciones');
+      const mapa = new Map(datos.nodos.map((n) => [n.id, n]));
+      const directos = new Set([datos.centro]);
+      for (const e of datos.enlaces) {
+        if (e.origen === datos.centro) directos.add(e.destino);
+        if (e.destino === datos.centro) directos.add(e.origen);
+      }
+      const primerAnillo = datos.nodos.filter((n) => n.id !== datos.centro && directos.has(n.id));
+      const segundoAnillo = datos.nodos.filter((n) => !directos.has(n.id));
+      const r1 = Math.max(145, primerAnillo.length * 23);
+      const r2 = Math.max(r1 + 165, segundoAnillo.length * 23);
+      const ancho = Math.max(760, 2 * (r2 + 70));
+      const centro = ancho / 2;
+      const posiciones = new Map([[datos.centro, {x: centro, y: centro}]]);
+      function anillo(nodos, radio) {
+        nodos.forEach((n, i) => {
+          const angulo = 2 * Math.PI * i / nodos.length - Math.PI / 2;
+          posiciones.set(n.id, {x: centro + radio * Math.cos(angulo), y: centro + radio * Math.sin(angulo)});
+        });
+      }
+      anillo(primerAnillo, r1);
+      anillo(segundoAnillo, r2);
+      const svg = svgNodo('svg', {viewBox: `0 0 ${ancho} ${ancho}`, width: ancho, height: ancho,
+        role: 'img', 'aria-label': `Relaciones registradas alrededor de ${datos.centro}`});
+      const lineas = svgNodo('g', {});
+      const objetos = svgNodo('g', {});
+      svg.append(lineas, objetos);
+
+      function mostrarNodo(n) {
+        detalle.replaceChildren(nodo('h3', null, n.etiqueta), nodo('p', 'small', n.tipo),
+          nodo('p', null, n.detalle), nodo('p', 'small', 'Pulsa este nodo para centrar la búsqueda aquí.'));
+      }
+      function mostrarEnlace(e) {
+        detalle.replaceChildren(nodo('h3', null, `${e.origen} → ${e.destino}`),
+          nodo('p', null, e.relacion), nodo('p', 'small', 'Hecho registrado en Prolog:'),
+          nodo('code', null, e.evidencia));
+      }
+      for (const e of datos.enlaces) {
+        const a = posiciones.get(e.origen), b = posiciones.get(e.destino);
+        if (!a || !b) continue;
+        const linea = svgNodo('line', {x1: a.x, y1: a.y, x2: b.x, y2: b.y,
+          class: 'linea', tabindex: 0, role: 'button', 'aria-label': `${e.origen} ${e.relacion} ${e.destino}`});
+        linea.append(svgNodo('title', {}, `${e.relacion}: ${e.evidencia}`));
+        linea.addEventListener('click', () => mostrarEnlace(e));
+        linea.addEventListener('keydown', (evento) => {
+          if (evento.key === 'Enter' || evento.key === ' ') { evento.preventDefault(); mostrarEnlace(e); }
+        });
+        lineas.append(linea);
+      }
+      for (const n of datos.nodos) {
+        const pos = posiciones.get(n.id);
+        const grupo = svgNodo('g', {class: 'nodo-g' + (n.id === datos.centro ? ' centro' : ''),
+          tabindex: 0, role: 'button', 'aria-label': `${n.etiqueta}, ${n.tipo}. Explorar`});
+        grupo.append(svgNodo('rect', {x: pos.x - 65, y: pos.y - 27, width: 130, height: 54, rx: 10}),
+          svgNodo('text', {x: pos.x, y: pos.y - 2, 'text-anchor': 'middle'}, n.etiqueta),
+          svgNodo('text', {x: pos.x, y: pos.y + 16, 'text-anchor': 'middle', class: 'tipo'}, n.tipo));
+        grupo.addEventListener('click', () => {
+          $('grafo-id').value = n.id;
+          cargarGrafo(n.id);
+        });
+        grupo.addEventListener('keydown', (evento) => {
+          if (evento.key === 'Enter' || evento.key === ' ') {
+            evento.preventDefault(); $('grafo-id').value = n.id; cargarGrafo(n.id);
+          }
+        });
+        objetos.append(grupo);
+      }
+      lienzo.replaceChildren(svg);
+      lienzo.scrollLeft = Math.max(0, (ancho - lienzo.clientWidth) / 2);
+      lienzo.scrollTop = Math.max(0, (ancho - lienzo.clientHeight) / 2);
+      mostrarNodo(mapa.get(datos.centro));
+      relaciones.replaceChildren(nodo('strong', null, 'Conexiones visibles'));
+      for (const e of datos.enlaces) {
+        const boton = nodo('button', null, `${e.origen} → ${e.destino} · ${e.relacion}`);
+        boton.type = 'button';
+        boton.addEventListener('click', () => mostrarEnlace(e));
+        relaciones.append(boton);
+      }
+      $('grafo-nota').textContent = `${datos.nodos.length} nodos · ${datos.enlaces.length} conexiones. ${datos.nota}`;
+    }
+
+    async function cargarGrafo(id) {
+      const actual = ++consultaGrafo;
+      const lienzo = $('grafo-lienzo');
+      $('buscar-grafo').disabled = true;
+      lienzo.replaceChildren(nodo('p', 'loading', 'Consultando relaciones en Prolog…'));
+      try {
+        const datos = await pedir(API_BASE + '/api/grafo?id=' + encodeURIComponent(id.trim()));
+        if (actual === consultaGrafo) dibujarGrafo(datos);
+      } catch (error) {
+        if (actual === consultaGrafo) {
+          mostrarError(lienzo, error);
+          $('grafo-detalle').textContent = 'No se encontraron relaciones para esa búsqueda.';
+          $('grafo-relaciones').replaceChildren();
+        }
+      } finally {
+        if (actual === consultaGrafo) $('buscar-grafo').disabled = false;
+      }
     }
 
     async function pedir(url) {
@@ -817,6 +970,10 @@
       evento.preventDefault();
       cargarDecision();
     });
+    $('form-grafo').addEventListener('submit', (evento) => {
+      evento.preventDefault();
+      cargarGrafo($('grafo-id').value);
+    });
     $('solicitud').addEventListener('change', cargarDecision);
     $('form-faltantes').addEventListener('submit', (evento) => {
       evento.preventDefault();
@@ -828,6 +985,7 @@
     });
 
     cargarInventario();
+    cargarGrafo($('grafo-id').value);
     cargarDecision();
     cargarReservas();
     cargarIncidente();

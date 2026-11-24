@@ -81,6 +81,14 @@ Prolog recalcula el reparto y el nivel crítico sin cambiar la foto base ni
 registrar entregas. Este control no generaliza a consumos arbitrarios ni a
 otros tipos de sangre.
 
+El **mapa de conexiones** permite buscar un ID ficticio de donante, donación,
+unidad, equipo, paciente, solicitud o cirugía y navegar hasta dos saltos entre
+relaciones registradas en la foto base (hora 100). Cada línea devuelve el hecho
+Prolog que la respalda. Muestra reservas documentadas como reservas, no como
+entregas; una propuesta de asignación no crea una conexión real, y la unidad
+`u12` sin receptor registrado no se conecta a un paciente inventado. El grafo
+no combina la foto base con el accidente, la falla o la prueba tardía.
+
 La prioridad de sustitución **es un supuesto educativo tomado del proyecto
 Erlang previo**: primero tipo exacto, después menor versatilidad y, dentro de
 un tipo, FEFO. Desempate por nombre del tipo e ID. Que otra solicitud O−
@@ -108,6 +116,8 @@ de la maqueta**: todos los datos, órdenes y explicaciones vienen de Prolog.
 
 - `GET /api/inventario`: hora lógica y existencias utilizables de glóbulos
   rojos por tipo.
+- `GET /api/grafo?id=u22`: nodos y conexiones factuales de dos saltos alrededor
+  de un identificador; `404` para IDs desconocidos, sin escritura.
 - `GET /api/decidir?id=s1`: propuestas en orden y explicación de cada una.
 - `GET /api/decidir?id=s2`: reacomodo propuesto para la urgencia, sin escritura.
 - `GET /api/reservas`: `cir1` reacomodable, `cir2` sin cobertura y `cir3`
@@ -230,7 +240,7 @@ archivo `salida/` está ignorado por Git.
 4. Situación 5: ampliar a reparto de todos los tipos y a demanda variable;
    este ejercicio decide un único conflicto por O−.
 5. Ampliar las pruebas plunit a todos los tipos y las consultas contrafactuales
-   a más escenarios; hoy hay 58 pruebas, incluidas las cinco situaciones, la
+   a más escenarios; hoy hay 61 pruebas, incluidas las cinco situaciones, el
    simulación de consumo, la consulta inversa y la API.
 6. Validación médica real: el umbral crítico, el margen de liberación y los
    rangos de temperatura son supuestos educativos, no protocolos.

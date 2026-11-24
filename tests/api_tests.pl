@@ -150,4 +150,37 @@ test(simulador_rechaza_consumo_fuera_de_rango, [nondet]) :-
                              close(Stream)) ),
         servidor:detener).
 
+test(grafo_donacion_y_receptor_documentado, [nondet]) :-
+    setup_call_cleanup(servidor:iniciar(Port),
+        ( pagina(Port,'api/grafo?id=u22',Respuesta),
+          atom_string(Json,Respuesta),atom_json_dict(Json,Datos,[]),
+          Datos.centro == "u22", Datos.hora == 100,
+          member(D,Datos.nodos),D.id == "d1",
+          member(P,Datos.nodos),P.id == "p5",
+          member(Donante,Datos.nodos),Donante.id == "dona_1",
+          member(Cadena,Datos.enlaces),Cadena.origen == "d1",
+          Cadena.destino == "u22",Cadena.relacion == "produjo",
+          member(Receptor,Datos.enlaces),Receptor.origen == "u22",
+          Receptor.destino == "p5",Receptor.relacion == "transfundida a",
+          sub_string(Receptor.evidencia,_,_,_,"receptor_unidad(u22,p5,99)") ),
+        servidor:detener).
+
+test(grafo_no_inventa_receptor_ni_asignacion, [nondet]) :-
+    setup_call_cleanup(servidor:iniciar(Port),
+        ( pagina(Port,'api/grafo?id=u12',Respuesta),
+          atom_string(Json,Respuesta),atom_json_dict(Json,Datos,[]),
+          \+ (member(E,Datos.enlaces),E.origen == "u12",E.relacion == "transfundida a"),
+          pagina(Port,'api/grafo?id=s1',Solicitud),
+          atom_string(SJson,Solicitud),atom_json_dict(SJson,SDatos,[]),
+          \+ (member(E2,SDatos.enlaces),E2.destino == "s1",E2.origen == "u1") ),
+        servidor:detener).
+
+test(grafo_centro_desconocido_404, [nondet]) :-
+    setup_call_cleanup(servidor:iniciar(Port),
+        ( format(atom(Url),'http://127.0.0.1:~w/api/grafo?id=inexistente',[Port]),
+          setup_call_cleanup(http_open(Url,Stream,[status_code(Status)]),
+                             (Status == 404,read_string(Stream,_,Cuerpo),
+                              sub_string(Cuerpo,_,_,_,"desconocido")),close(Stream)) ),
+        servidor:detener).
+
 :- end_tests(interfaz_http).

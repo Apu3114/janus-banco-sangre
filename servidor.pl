@@ -3,6 +3,7 @@
 
 :- use_module(reglas).
 :- use_module(hechos).
+:- use_module(grafo).
 :- use_module(library(http/http_server)).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_parameters)).
@@ -18,6 +19,7 @@
 :- http_handler(root('api/accidente'), accidente_http, []).
 :- http_handler(root('api/simular-accidente'), simular_accidente_http, []).
 :- http_handler(root('api/que-falta'), faltantes_http, []).
+:- http_handler(root('api/grafo'), grafo_http, []).
 :- http_handler(root(app), pagina_http, []).
 
 % Servidor independiente del Cowboy/Erlang; endpoints de solo lectura.
@@ -69,6 +71,16 @@ faltantes_http(Request) :-
         reply_json_dict(_{consulta:IdTexto,faltantes:Faltantes,
                           nota:"Requisitos del modelo, no instrucciones clínicas"})
     ; reply_json_dict(_{error:"Identificador ficticio desconocido"}, [status(404)])
+    ).
+
+grafo_http(Request) :-
+    http_parameters(Request,[id(IdTexto,[string])]),
+    ( grafo:nodo(Id,_,_,_), atom_string(Id,IdTexto) ->
+        grafo:red(Id,Nodos,Enlaces),
+        hechos:ahora(Hora),
+        reply_json_dict(_{centro:IdTexto,hora:Hora,nodos:Nodos,enlaces:Enlaces,
+                          nota:"Relaciones registradas en la foto base; reservas no son entregas ni propuestas ejecutadas"})
+    ; reply_json_dict(_{error:"Identificador ficticio desconocido"},[status(404)])
     ).
 
 faltante_texto(tipo_confirmado(P),Texto) :-
